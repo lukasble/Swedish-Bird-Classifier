@@ -3,7 +3,7 @@ let classMapping = {};
 let birdDictionary = {}; // Rymmer översättningarna från CSV
 let currentLanguage = 'sv'; // Standard: svenska ('sv' eller 'en')
 let chartInstance = null;
-let lastTop5Results = null; // Sparar senaste prediktionen för snabb omritning vid språkbyte
+let lastTop5Results = null;
 
 const statusEl = document.getElementById('status');
 const audioInput = document.getElementById('audio-input');
@@ -12,6 +12,18 @@ const resultsSection = document.getElementById('results');
 const topSpeciesEl = document.getElementById('top-species');
 const topConfidenceEl = document.getElementById('top-confidence');
 const langToggleBtn = document.getElementById('lang-toggle-btn');
+
+// Koppla knappen för språkbyte
+if (langToggleBtn) {
+    langToggleBtn.addEventListener('click', () => {
+        currentLanguage = currentLanguage === 'sv' ? 'en' : 'sv';
+        langToggleBtn.innerText = currentLanguage === 'sv' ? 'Språk: Svenska' : 'Language: English';
+        
+        if (lastTop5Results) {
+            updateUIWithResults(lastTop5Results);
+        }
+    });
+}
 
 // 1. Initialize ONNX Runtime Session, Fetch Class Mappings & CSV Dictionary
 async function init() {
@@ -40,37 +52,39 @@ async function init() {
     }
 }
 
-// Läser in och parsar CSV-filen med artnamn
+// Läser in och parsar CSV-filen
 async function loadBirdDictionary() {
     try {
         const response = await fetch('./bird_names_dictionary.csv');
         const csvText = await response.text();
         
-        const lines = csvText.trim().split('\n');
+        const lines = csvText.trim().split(/\r?\n/);
         for (let i = 1; i < lines.length; i++) {
             const line = lines[i].trim();
             if (!line) continue;
 
-            // Robust parsing för kommatecken inom citattecken
             const columns = line.split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/).map(col => col.replace(/^"\vert{}"$/g, '').trim());
             
-            const label = columns[0];
-            const scientificName = columns[1];
-            const commonName = columns[2];
-            const swedishName = columns[3];
+            if (columns.length >= 4) {
+                const label = columns[0];
+                const scientificName = columns[1];
+                const commonName = columns[2];
+                const swedishName = columns[3];
 
-            birdDictionary[label] = {
-                latin: scientificName || '',
-                en: commonName || label,
-                sv: swedishName || commonName || label
-            };
+                birdDictionary[label] = {
+                    latin: scientificName || '',
+                    en: commonName || label,
+                    sv: swedishName || commonName || label
+                };
+            }
         }
+        console.log("Fågelordbok inläst:", Object.keys(birdDictionary).length, "arter.");
     } catch (err) {
-        console.warn("Kunde inte ladda bird_names_dictionary.csv, använder fallback:", err);
+        console.warn("Kunde inte ladda CSV-ordboken:", err);
     }
 }
 
-// Hjälpfunktion för att hämta etikett baserat på förkortning och valt språk
+// Hjälpfunktion för att hämta namn baserat på sprak
 function getFormattedBirdName(classCode) {
     const info = birdDictionary[classCode];
     if (info) {
@@ -78,24 +92,15 @@ function getFormattedBirdName(classCode) {
         return info.latin ? `${primaryName} (${info.latin})` : primaryName;
     }
     
-    // Fallback om koden inte hittas i CSV-ordboken
+    // Inbyggd fallback för vanliga koder om de skulle saknas i CSV
+    if (classCode === 'eurbul' || classCode === 'eurbul1') {
+        return currentLanguage === 'sv' ? 'Domherre (Pyrrhula pyrrhula)' : 'Eurasian Bullfinch (Pyrrhula pyrrhula)';
+    }
+    
     return classCode;
 }
 
-// Hantering av språkbyte
-if (langToggleBtn) {
-    langToggleBtn.addEventListener('click', () => {
-        currentLanguage = currentLanguage === 'sv' ? 'en' : 'sv';
-        langToggleBtn.innerText = currentLanguage === 'sv' ? 'Språk: Svenska' : 'Language: English';
-        
-        // Uppdatera visningen om det finns ett tidigare resultat
-        if (lastTop5Results) {
-            updateUIWithResults(lastTop5Results);
-        }
-    });
-}
-
-// 2. Helper Functions for Mel Filterbank Calculation (PyTorch / torchaudio Parity)
+// 2. Helper Functions for Mel Filterbank Calculation
 function hzToMel(hz) {
     return 2595.0 * Math.log10(1.0 + hz / 700.0);
 }
@@ -262,7 +267,6 @@ async function runInference(inputTensor) {
     updateUIWithResults(lastTop5Results);
 }
 
-// Uppdaterar både rubrik och diagram med rätt språk
 function updateUIWithResults(top5) {
     const topMatch = top5[0];
     const classCode = classMapping[topMatch.idx];
