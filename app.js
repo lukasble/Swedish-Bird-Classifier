@@ -15,7 +15,7 @@ const uiTranslations = {
         lblConfidence: "Sannolikhet:",
         chartLabel: "Sannolikhet (%)",
         sidebarTitle: "🎧 Exempelljud",
-        sidebarDesc: "Ladda ner eller testa ett exempelljud direkt:",
+        sidebarDesc: "Ladda ner eller testa ett exempelljud direkt för att utvärdera modellen utan att behöva ladda upp egna filer.",
         btnTest: "Testa",
         loadingModel: "Laddar AI-modell...",
         loadingMapping: "Laddar artmappning...",
@@ -33,7 +33,7 @@ const uiTranslations = {
         lblConfidence: "Confidence:",
         chartLabel: "Confidence (%)",
         sidebarTitle: "🎧 Sample Sounds",
-        sidebarDesc: "Download or test a sample sound directly:",
+        sidebarDesc: "Download or test a sample sound directly to evaluate the model without needing to upload your own files.",
         btnTest: "Test",
         loadingModel: "Loading AI model...",
         loadingMapping: "Loading species class mapping...",
@@ -112,6 +112,7 @@ function updateStaticText() {
     if (lblTopMatchEl) lblTopMatchEl.innerText = t.lblTopMatch;
     if (lblConfidenceEl) lblConfidenceEl.innerText = t.lblConfidence;
     
+    // Sidpanelens översättning (Rubrik, Beskrivning & Knappar)
     const sidebarTitleEl = document.getElementById('sidebar-title');
     const sidebarDescEl = document.getElementById('sidebar-desc');
     if (sidebarTitleEl) sidebarTitleEl.innerText = t.sidebarTitle;
@@ -129,14 +130,24 @@ function updateStaticText() {
     document.documentElement.lang = currentLanguage;
 }
 
-// Kör exempelljud från samples/-mappen direkt vid klick
+// Kör exempelljud direkt vid klick på "Testa"
 async function loadExampleAudio(filePath) {
+    const player = audioPlayer || document.getElementById('audio-player');
+    
     try {
         setStatus('extracting');
-        audioPlayer.src = filePath;
-        audioPlayer.style.display = 'block';
+
+        if (player) {
+            player.src = filePath;
+            player.style.display = 'block';
+            player.play().catch(e => console.log("Auto-play blockerades av webbläsaren:", e));
+        }
 
         const response = await fetch(filePath);
+        if (!response.ok) {
+            throw new Error(`Kunde inte hämta filen (${response.status} ${response.statusText})`);
+        }
+
         const blob = await response.blob();
         const arrayBuffer = await blob.arrayBuffer();
 
