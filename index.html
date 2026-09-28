@@ -7,17 +7,17 @@
     <link rel="stylesheet" href="styles.css">
     <!-- ONNX Runtime Web CDN -->
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
-    <!-- Meyda Audio Feature Extraction för STFT / Spectrogram -->
+    <!-- Meyda Audio Feature Extraction for STFT / Spectrogram -->
     <script src="https://unpkg.com/meyda/dist/web/meyda.min.js"></script>
-    <!-- Chart.js för resultat -->
+    <!-- Chart.js for visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
-        <button id="lang-toggle-btn" class="lang-btn">Svenska / English</button>
+        <button id="lang-toggle-btn" class="lang-btn">Språk: Svenska</button>
         <header>
-            <h1>🦅 Bird Species Classifier</h1>
-            <p>Ladda upp en ljudfil (.wav eller .mp3) för att identifiera fågelarten direkt i din webbläsare.</p>
+            <h1 id="app-title">🦅 Bird Species Classifier</h1>
+            <p id="app-subtitle">Ladda upp en ljudfil (.wav eller .mp3) för att identifiera fågelarten direkt i din webbläsare.</p>
         </header>
 
         <main>
@@ -29,8 +29,8 @@
             </section>
 
             <section id="results" class="results-section" style="display: none;">
-                <h2>Top Match: <span id="top-species">---</span></h2>
-                <p>Confidence: <strong id="top-confidence">0%</strong></p>
+                <h2><span id="lbl-top-match">Bästa matchning:</span> <span id="top-species">---</span></h2>
+                <p><span id="lbl-confidence">Sannolikhet:</span> <strong id="top-confidence">0%</strong></p>
                 
                 <div class="chart-container">
                     <canvas id="confidence-chart"></canvas>
