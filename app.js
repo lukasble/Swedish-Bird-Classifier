@@ -1,14 +1,14 @@
 /**
  * Global Application State Variables
  */
-let session = null;                // Holds the ONNX Runtime Web inference session
-let classMapping = {};             // Maps output model indices to internal species codes
-let birdDictionary = {};           // Maps species codes to scientific, English, and Swedish names
-let currentLanguage = 'sv';        // Active UI language ('sv' or 'en')
-let chartInstance = null;          // Reference to the Chart.js instance for rendering probabilities
-let lastTop5Results = null;        // Stores the last computed top 5 classification results
+let session = null;             // Holds the ONNX Runtime Web inference session
+let classMapping = {};          // Maps output model indices to internal species codes
+let birdDictionary = {};        // Maps species codes to scientific, English, and Swedish names
+let currentLanguage = 'sv';     // Active UI language ('sv' or 'en')
+let chartInstance = null;       // Reference to the Chart.js instance for rendering probabilities
+let lastTop5Results = null;     // Stores the last computed top 5 classification results
 let currentStatusKey = 'loadingModel'; // Key reflecting the current operational status
-let currentObjectUrl = null;       // Stores object URL for proper memory cleanup
+let currentObjectUrl = null;    // Stores object URL for proper memory cleanup
 
 /**
  * UI Translation Dictionary
@@ -18,14 +18,14 @@ const uiTranslations = {
     sv: {
         siteSubtitle: "ljudbaserad artidentifiering",
         appTitle: "Fågelartklassificerare",
-        appSubtitle: "Ladda upp en ljudfil (.wav eller .mp3) för att identifiera fågelarten direkt i din webbläsare.",
+        appSubtitle: "Ladda upp en ljudfil (.wav eller .mp3) för att identifiera fågelarten direkt i din webbläsare. OBS: Ljudfilen bör vara minst 5 sekunder lång och modellen lyssnar efter de mest ljudintensiva sekunderna i hela ljudfilen.",
         lblTopMatch: "Bästa matchning:",
         lblConfidence: "Sannolikhet:",
         chartLabel: "Sannolikhet (%)",
         sidebarTitle: "Exempelljud",
         sidebarDesc: "Ladda ner eller testa ett exempelljud direkt för att utvärdera modellen utan att behöva ladda upp egna filer.",
         btnTest: "Testa",
-        artfaktaText: 'Testa att ladda upp ett eget inspelat fågelljud eller ladda ner ljud för att testa den ljudbaserade AI modellen från <a href="https://artfakta.se/sok" target="_blank" rel="noopener noreferrer" style="color: #3498db; text-decoration: underline;">SLU Artbanken</a>.',
+        artfaktaText: 'Testa att ladda upp ett eget inspelat svenskt fågelljud eller ladda ner ljud från <a href="https://artfakta.se/sok" target="_blank" rel="noopener noreferrer" style="color: #3498db; text-decoration: underline;">SLU Artbanken</a>. för att testa den ljudbaserade AI modellen ',
         loadingModel: "Laddar AI-modell...",
         loadingMapping: "Laddar artmappning...",
         loadingDict: "Laddar fågelordbok...",
@@ -36,19 +36,20 @@ const uiTranslations = {
         infoTitle: "Om projektet",
         infoDesc: "Denna app är en webbläsarbaserad AI-klassificerare för fågelläten som körs helt lokalt via ONNX Runtime Web och EfficientNet.",
         infoLinkText: "📖 Läs bygguiden & arkitekturen",
-        infoBtnTitle: "Information om projektet"
+        infoBtnTitle: "Information om projektet",
+        modelWarning: "⚠️ Observera: Bilar, andra höga bakgrundsljud eller fågelsång från andra arter i ljudfilen kan påverka analysen och leda till att modellen lyssnar efter fel ljud."
     },
     en: {
         siteSubtitle: "audio-based species identification",
         appTitle: "Bird Species Classifier",
-        appSubtitle: "Upload an audio file (.wav or .mp3) to identify the bird species directly in your browser.",
+        appSubtitle: "Upload an audio file (.wav or .mp3) to identify the bird species directly in your browser. Note: The audio file should be at least 5 seconds long, and the model will analyze the most sound-intensive seconds of the entire audio file.",
         lblTopMatch: "Top Match:",
         lblConfidence: "Confidence:",
         chartLabel: "Confidence (%)",
         sidebarTitle: "Sample Sounds",
         sidebarDesc: "Download or test a sample sound directly to evaluate the model without needing to upload your own files.",
         btnTest: "Test",
-        artfaktaText: 'Try uploading your own recorded bird sound or download audio to test the soundbased AI model from <a href="https://artfakta.se/sok" target="_blank" rel="noopener noreferrer" style="color: #3498db; text-decoration: underline;">SLU Species Database</a>.',
+        artfaktaText: 'Try uploading your own recorded Swedish bird sound or download audio from <a href="https://artfakta.se/sok" target="_blank" rel="noopener noreferrer" style="color: #3498db; text-decoration: underline;">SLU Species Database</a>. to test the audio-based AI model',
         loadingModel: "Loading AI model...",
         loadingMapping: "Loading species class mapping...",
         loadingDict: "Loading bird names dictionary...",
@@ -59,12 +60,13 @@ const uiTranslations = {
         infoTitle: "About the Project",
         infoDesc: "This app is a browser-based AI classifier for bird calls running entirely locally via ONNX Runtime Web and EfficientNet.",
         infoLinkText: "📖 Read the build guide & architecture",
-        infoBtnTitle: "Information about the project"
+        infoBtnTitle: "Information about the project",
+        modelWarning: "⚠️ Note: Cars, other loud background noises, or bird songs from other species in the audio file may affect the analysis and cause the model to listen for the wrong sounds."
     }
 };
 
 // DOM Element references
-let statusEl, audioInput, audioPlayer, resultsSection, topSpeciesEl, topConfidenceEl, langToggleBtn, appTitleEl, appSubtitleEl, siteSubtitleEl, lblTopMatchEl, lblConfidenceEl, birdImageEl, artfaktaEl;
+let statusEl, audioInput, audioPlayer, resultsSection, topSpeciesEl, topConfidenceEl, langToggleBtn, appTitleEl, appSubtitleEl, siteSubtitleEl, lblTopMatchEl, lblConfidenceEl, birdImageEl, artfaktaEl, modelWarningEl;
 
 /**
  * Initializes DOM element references and attaches event listeners.
@@ -84,6 +86,7 @@ function initDOM() {
     lblConfidenceEl = document.getElementById('lbl-confidence');
     birdImageEl = document.getElementById('bird-image');
     artfaktaEl = document.getElementById('artfakta-text');
+    modelWarningEl = document.getElementById('model-warning');
 
     // Language switch button handler
     if (langToggleBtn) {
@@ -119,7 +122,6 @@ function initDOM() {
             const file = e.target.files[0];
             if (!file) return;
 
-            // Revoke old Object URL to avoid memory leaks
             if (currentObjectUrl) {
                 URL.revokeObjectURL(currentObjectUrl);
             }
@@ -140,7 +142,6 @@ function initDOM() {
             } catch (err) {
                 console.error("Processing failed:", err);
                 if (statusEl) {
-                    // Safe text assignment avoiding innerHTML injection
                     statusEl.textContent = `Fel vid ljudbearbetning: ${err.message}`;
                 }
             }
@@ -172,8 +173,8 @@ function updateStaticText() {
     if (appSubtitleEl) appSubtitleEl.textContent = t.appSubtitle;
     if (lblTopMatchEl) lblTopMatchEl.textContent = t.lblTopMatch;
     if (lblConfidenceEl) lblConfidenceEl.textContent = t.lblConfidence;
+    if (modelWarningEl) modelWarningEl.textContent = t.modelWarning;
     
-    // Controlled innerHTML update for trusted static template string
     if (artfaktaEl) artfaktaEl.innerHTML = t.artfaktaText;
     
     const sidebarTitleEl = document.getElementById('sidebar-title');
@@ -181,7 +182,6 @@ function updateStaticText() {
     if (sidebarTitleEl) sidebarTitleEl.textContent = t.sidebarTitle;
     if (sidebarDescEl) sidebarDescEl.textContent = t.sidebarDesc;
 
-    // Update info popup texts
     const infoTitleEl = document.getElementById('info-title');
     const infoDescEl = document.getElementById('info-desc');
     const infoLinkEl = document.getElementById('info-link');
@@ -221,7 +221,6 @@ function updateStaticText() {
  * @param {string} filePath - Relative path to the sample audio file.
  */
 async function loadExampleAudio(filePath) {
-    // Security check: validate relative path to prevent arbitrary local path traversal across subdirectories
     const validPrefixes = ['./audio/', 'audio/', './samples/', 'samples/'];
     const isValidPath = validPrefixes.some(prefix => filePath.startsWith(prefix));
 
@@ -336,8 +335,6 @@ async function loadBirdDictionary() {
 
 /**
  * Formats bird species name based on selected language and scientific name availability.
- * @param {string} classCode - Internal species class code.
- * @returns {string} Formatted display name.
  */
 function getFormattedBirdName(classCode) {
     const info = birdDictionary[classCode];
@@ -348,19 +345,9 @@ function getFormattedBirdName(classCode) {
     return classCode;
 }
 
-/**
- * Converts frequency in Hertz to Mel scale.
- */
 function hzToMel(hz) { return 2595.0 * Math.log10(1.0 + hz / 700.0); }
-
-/**
- * Converts value in Mel scale back to Hertz.
- */
 function melToHz(mel) { return 700.0 * (Math.pow(10.0, mel / 2595.0) - 1.0); }
 
-/**
- * Creates triangular Mel filterbank matrix for audio feature extraction.
- */
 function createMelFilterbank(numMels, fftSize, sampleRate, fMin = 0, fMax = null) {
     if (!fMax) fMax = sampleRate / 2;
     const numFftBins = Math.floor(fftSize / 2) + 1;
@@ -391,10 +378,6 @@ function createMelFilterbank(numMels, fftSize, sampleRate, fMin = 0, fMax = null
     return filterbank;
 }
 
-/**
- * Decodes user uploaded audio file to AudioBuffer.
- * Safely releases Web Audio API context resources upon completion.
- */
 async function decodeAudioFile(file) {
     const arrayBuffer = await file.arrayBuffer();
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 32000 });
@@ -407,18 +390,12 @@ async function decodeAudioFile(file) {
     }
 }
 
-/**
- * Extracts normalized Mel-Spectrogram tensor from audio PCM data.
- * @param {AudioBuffer} audioBuffer - Decoded audio buffer.
- * @returns {ort.Tensor} ONNX formatted float32 tensor.
- */
 function extractMelSpectrogramTensor(audioBuffer) {
     const pcmData = audioBuffer.getChannelData(0);
     const sampleRate = audioBuffer.sampleRate;
     const windowSamples = sampleRate * 5;
     let startSample = 0;
 
-    // Find highest energy 5-second segment if file length exceeds 5 seconds
     if (pcmData.length > windowSamples) {
         let maxEnergy = 0;
         let step = Math.floor(sampleRate / 2);
@@ -466,7 +443,6 @@ function extractMelSpectrogramTensor(audioBuffer) {
         }
     }
 
-    // Standardize features (mean=0, std=1)
     let sum = 0;
     for (let i = 0; i < rawSpectrogram.length; i++) sum += rawSpectrogram[i];
     const mean = sum / rawSpectrogram.length;
@@ -486,11 +462,6 @@ function extractMelSpectrogramTensor(audioBuffer) {
     return new ort.Tensor('float32', float32Data, [1, 1, numMels, timeFrames]);
 }
 
-/**
- * Computes Softmax probabilities over raw model logits.
- * @param {Array<number>} arr - Array of numerical logits.
- * @returns {Array<number>} Probability distribution.
- */
 function softmax(arr) {
     const maxLogit = Math.max(...arr);
     const exps = arr.map(value => Math.exp(value - maxLogit));
@@ -498,10 +469,6 @@ function softmax(arr) {
     return exps.map(value => value / sumExps);
 }
 
-/**
- * Runs ONNX model inference using the input spectrogram tensor.
- * @param {ort.Tensor} inputTensor - Preprocessed input spectrogram.
- */
 async function runInference(inputTensor) {
     const feeds = { input_spectrogram: inputTensor };
     const results = await session.run(feeds);
@@ -515,12 +482,6 @@ async function runInference(inputTensor) {
     updateUIWithResults(lastTop5Results);
 }
 
-/**
- * Maps species identifiers to image assets.
- * @param {string} classCode - Species class code.
- * @param {string} formattedName - Display name.
- * @returns {string} Image path.
- */
 function getBirdImageSrc(classCode, formattedName) {
     const searchString = `${classCode} ${formattedName}`.toLowerCase();
 
@@ -539,7 +500,6 @@ function getBirdImageSrc(classCode, formattedName) {
 
 /**
  * Updates UI elements with top match results and triggers chart rendering.
- * @param {Array<Object>} top5 - Top 5 probability matches.
  */
 function updateUIWithResults(top5) {
     const topMatch = top5[0];
@@ -554,15 +514,15 @@ function updateUIWithResults(top5) {
         birdImageEl.alt = formattedName;
     }
 
+    if (modelWarningEl) {
+        modelWarningEl.textContent = uiTranslations[currentLanguage].modelWarning;
+    }
+
     if (resultsSection) resultsSection.style.display = 'block';
 
     renderChart(top5);
 }
 
-/**
- * Renders probability visualization bar chart using Chart.js.
- * @param {Array<Object>} top5 - Top 5 classification results.
- */
 function renderChart(top5) {
     const chartCanvas = document.getElementById('confidence-chart');
     if (!chartCanvas) return;
@@ -601,5 +561,4 @@ function renderChart(top5) {
     });
 }
 
-// Attach DOMContentLoaded event listener to start application initialization
 window.addEventListener('DOMContentLoaded', init);
