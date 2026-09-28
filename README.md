@@ -20,6 +20,7 @@ An interactive web-based AI application designed to identify Swedish bird specie
 
 The project uses a clean, flat architecture to keep client-side execution fast and straightforward:
 
+```text
 .
 ├── audio/
 │   ├── domherre.wav
