@@ -222,7 +222,7 @@ function updateStaticText() {
  */
 async function loadExampleAudio(filePath) {
     // Security check: validate relative path to prevent arbitrary local path traversal
-    if (!filePath.startsWith('./audio/') && !filePath.startsWith('audio/')) {
+    if (!filePath.startsWith('./audio/') && !filePath.startsWith('samples/')) {
         console.error("Invalid file path supplied.");
         return;
     }
