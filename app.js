@@ -1,6 +1,9 @@
 let session = null;
 let classMapping = {};
+let birdDictionary = {}; // Rymmer översättningarna från CSV
+let currentLanguage = 'sv'; // Standard: svenska ('sv' eller 'en')
 let chartInstance = null;
+let lastTop5Results = null; // Sparar senaste prediktionen för snabb omritning vid språkbyte
 
 const statusEl = document.getElementById('status');
 const audioInput = document.getElementById('audio-input');
@@ -8,8 +11,9 @@ const audioPlayer = document.getElementById('audio-player');
 const resultsSection = document.getElementById('results');
 const topSpeciesEl = document.getElementById('top-species');
 const topConfidenceEl = document.getElementById('top-confidence');
+const langToggleBtn = document.getElementById('lang-toggle-btn');
 
-// 1. Initialize ONNX Runtime Session and Fetch Class Mappings
+// 1. Initialize ONNX Runtime Session, Fetch Class Mappings & CSV Dictionary
 async function init() {
     try {
         statusEl.innerText = "Loading ONNX model...";
@@ -23,6 +27,9 @@ async function init() {
         const response = await fetch('./models/species_class_mapping.json');
         classMapping = await response.json();
 
+        statusEl.innerText = "Loading bird names dictionary...";
+        await loadBirdDictionary();
+
         statusEl.innerText = "Ready! Upload an audio file to classify.";
         audioInput.disabled = false;
     } catch (err) {
@@ -31,6 +38,61 @@ async function init() {
         statusEl.style.borderLeftColor = "#e74c3c";
         statusEl.style.backgroundColor = "#fdf2f2";
     }
+}
+
+// Läser in och parsar CSV-filen med artnamn
+async function loadBirdDictionary() {
+    try {
+        const response = await fetch('./bird_names_dictionary.csv');
+        const csvText = await response.text();
+        
+        const lines = csvText.trim().split('\n');
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            // Robust parsing för kommatecken inom citattecken
+            const columns = line.split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/).map(col => col.replace(/^"\vert{}"$/g, '').trim());
+            
+            const label = columns[0];
+            const scientificName = columns[1];
+            const commonName = columns[2];
+            const swedishName = columns[3];
+
+            birdDictionary[label] = {
+                latin: scientificName || '',
+                en: commonName || label,
+                sv: swedishName || commonName || label
+            };
+        }
+    } catch (err) {
+        console.warn("Kunde inte ladda bird_names_dictionary.csv, använder fallback:", err);
+    }
+}
+
+// Hjälpfunktion för att hämta etikett baserat på förkortning och valt språk
+function getFormattedBirdName(classCode) {
+    const info = birdDictionary[classCode];
+    if (info) {
+        const primaryName = currentLanguage === 'sv' ? info.sv : info.en;
+        return info.latin ? `${primaryName} (${info.latin})` : primaryName;
+    }
+    
+    // Fallback om koden inte hittas i CSV-ordboken
+    return classCode;
+}
+
+// Hantering av språkbyte
+if (langToggleBtn) {
+    langToggleBtn.addEventListener('click', () => {
+        currentLanguage = currentLanguage === 'sv' ? 'en' : 'sv';
+        langToggleBtn.innerText = currentLanguage === 'sv' ? 'Språk: Svenska' : 'Language: English';
+        
+        // Uppdatera visningen om det finns ett tidigare resultat
+        if (lastTop5Results) {
+            updateUIWithResults(lastTop5Results);
+        }
+    });
 }
 
 // 2. Helper Functions for Mel Filterbank Calculation (PyTorch / torchaudio Parity)
@@ -42,7 +104,6 @@ function melToHz(mel) {
     return 700.0 * (Math.pow(10.0, mel / 2595.0) - 1.0);
 }
 
-// Generates a [numMels, fftSize / 2 + 1] filterbank matrix matching torchaudio
 function createMelFilterbank(numMels, fftSize, sampleRate, fMin = 0, fMax = null) {
     if (!fMax) fMax = sampleRate / 2;
     const numFftBins = Math.floor(fftSize / 2) + 1;
@@ -103,19 +164,16 @@ audioInput.addEventListener('change', async (e) => {
     }
 });
 
-// Decodes audio file and resamples to 32 kHz (Nyquist-Shannon target rate)
 async function decodeAudioFile(file) {
     const arrayBuffer = await file.arrayBuffer();
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 32000 });
     return await audioCtx.decodeAudioData(arrayBuffer);
 }
 
-// Extract exact [1, 1, 128, 313] Log-Mel-Spectrogram Tensor with Z-Score Normalization
 function extractMelSpectrogramTensor(audioBuffer) {
-    const pcmData = audioBuffer.getChannelData(0); // Mono channel mix-down
+    const pcmData = audioBuffer.getChannelData(0);
     const sampleRate = audioBuffer.sampleRate;
     
-    // Select highest-energy 5-second window (RMS search)
     const windowSamples = sampleRate * 5;
     let startSample = 0;
 
@@ -139,7 +197,7 @@ function extractMelSpectrogramTensor(audioBuffer) {
     const fftSize = 1024;
     const timeFrames = 313;
     const numMels = 128;
-    const hopSize = 512; // Matches HOP_LENGTH_SAMPLES = 512 in Cell 3
+    const hopSize = 512;
     const numFftBins = Math.floor(fftSize / 2) + 1;
     
     const melFilterbank = createMelFilterbank(numMels, fftSize, sampleRate);
@@ -161,8 +219,6 @@ function extractMelSpectrogramTensor(audioBuffer) {
                     for (let k = 0; k < numFftBins; k++) {
                         melEnergy += (powerSpec[k] || 0.0) * melFilterbank[mel][k];
                     }
-                    
-                    // AmplitudeToDB transform matching torchaudio
                     const db = 10.0 * Math.log10(Math.max(1e-10, melEnergy));
                     rawSpectrogram[mel * timeFrames + frame] = db;
                 }
@@ -170,7 +226,6 @@ function extractMelSpectrogramTensor(audioBuffer) {
         }
     }
 
-    // Step 4 from Cell 3: Z-Score Normalization (mean = 0, std = 1)
     let sum = 0;
     for (let i = 0; i < rawSpectrogram.length; i++) {
         sum += rawSpectrogram[i];
@@ -202,14 +257,17 @@ async function runInference(inputTensor) {
 
     const indexedProbs = probabilities.map((prob, idx) => ({ prob, idx }));
     indexedProbs.sort((a, b) => b.prob - a.prob);
-    const top5 = indexedProbs.slice(0, 5);
+    
+    lastTop5Results = indexedProbs.slice(0, 5);
+    updateUIWithResults(lastTop5Results);
+}
 
+// Uppdaterar både rubrik och diagram med rätt språk
+function updateUIWithResults(top5) {
     const topMatch = top5[0];
-    const rawMapping = classMapping[topMatch.idx];
+    const classCode = classMapping[topMatch.idx];
     
-    const topSpeciesName = typeof rawMapping === 'object' ? (rawMapping.sv || rawMapping.en || rawMapping.code) : (rawMapping || `Species #${topMatch.idx}`);
-    
-    topSpeciesEl.innerText = topSpeciesName;
+    topSpeciesEl.innerText = getFormattedBirdName(classCode);
     topConfidenceEl.innerText = `${(topMatch.prob * 100).toFixed(2)}%`;
 
     renderChart(top5);
@@ -225,9 +283,10 @@ function softmax(logits) {
 
 function renderChart(top5) {
     const labels = top5.map(item => {
-        const m = classMapping[item.idx];
-        return typeof m === 'object' ? (m.sv || m.en || m.code) : (m || `#${item.idx}`);
+        const classCode = classMapping[item.idx];
+        return getFormattedBirdName(classCode);
     });
+    
     const data = top5.map(item => (item.prob * 100).toFixed(2));
 
     const ctx = document.getElementById('confidence-chart').getContext('2d');
@@ -238,7 +297,7 @@ function renderChart(top5) {
         data: {
             labels: labels,
             datasets: [{
-                label: 'Confidence (%)',
+                label: currentLanguage === 'sv' ? 'Sannolikhet (%)' : 'Confidence (%)',
                 data: data,
                 backgroundColor: ['#3498db', '#2ecc71', '#9b59b6', '#f1c40f', '#e67e22']
             }]

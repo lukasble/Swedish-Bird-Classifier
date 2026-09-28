@@ -1,0 +1,300 @@
+﻿primary_label,scientific_name,english_name,swedish_name
+taibeg1,Anser fabalis,Taiga Bean Goose,sädgås
+pifgoo,Anser brachyrhynchus,Pink-footed Goose,spetsbergsgås
+brant,Branta bernicla,Brant Goose,prutgås
+bargoo,Branta leucopsis,Barnacle Goose,vitkindad gås
+cangoo,Branta canadensis,Canada Goose,kanadagås
+mutswa,Cygnus olor,Mute Swan,knölsvan
+tunswa,Cygnus columbianus,Tundra Swan,mindre sångsvan
+whoswa,Cygnus cygnus,Whooper Swan,sångsvan
+comshe,Tadorna tadorna,Common Shelduck,gravand
+manduc,Aix galericulata,Mandarin Duck,mandarinand
+gargan,Spatula querquedula,Garganey,årta
+norsho,Spatula clypeata,Northern Shoveler,skedand
+gadwal,Mareca strepera,Gadwall,snatterand
+eurwig,Mareca penelope,Eurasian Wigeon,bläsand
+amewig,Mareca americana,American Wigeon,Amerikansk bläsand
+mallar3,Anas platyrhynchos,Mallard,gräsand
+norpin,Anas acuta,Northern Pintail,stjärtand
+gnwtea,Anas crecca,Eurasian Teal,kricka
+compoc,Aythya ferina,Common Pochard,brunand
+tufduc,Aythya fuligula,Tufted Duck,vigg
+gresca,Aythya marila,Greater Scaup,bergand
+comeid,Somateria mollissima,Common Eider,ejder
+whwsco3,Melanitta fusca,Velvet Scoter,svärta
+blksco1,Melanitta nigra,Common Scoter,sjöorre
+lotduc,Clangula hyemalis,Long-tailed Duck,alfågel
+comgol,Bucephala clangula,Common Goldeneye,knipa
+smew,Mergellus albellus,Smew,salskrake
+commer,Mergus merganser,Common Merganser,storskrake
+rebmer,Mergus serrator,Red-breasted Merganser,småskrake
+hazgro1,Tetrastes bonasia,Hazel Grouse,järpe
+wilpta,Lagopus lagopus,Willow Ptarmigan,dalripa
+rocpta1,Lagopus muta,Rock Ptarmigan,fjällripa
+wescap1,Tetrao urogallus,Western Capercaillie,tjäder
+blagro1,Lyrurus tetrix,Black Grouse,orre
+grypar,Perdix perdix,Grey Partridge,rapphöna
+rinphe,Phasianus colchicus,Common Pheasant,fasan
+comqua1,Coturnix coturnix,Common Quail,vaktel
+litgre1,Tachybaptus ruficollis,Little Grebe,smådopping
+horgre,Podiceps auritus,Horned Grebe,svarthakedopping
+rengre,Podiceps grisegena,Red-necked Grebe,gråhakedopping
+grcgre1,Podiceps cristatus,Great Crested Grebe,skäggdopping
+eargre,Podiceps nigricollis,Black-necked Grebe,Svarthalsad dopping
+rocpig,Columba livia,Rock Dove,klippduva
+stodov1,Columba oenas,Stock Dove,skogsduva
+cowpig1,Columba palumbus,Common Wood Pigeon,ringduva
+eutdov,Streptopelia turtur,European Turtle Dove,turturduva
+ortdov,Streptopelia orientalis,Oriental Turtle Dove,större turturduva
+eucdov,Streptopelia decaocto,Eurasian Collared Dove,turkduva
+comcuc,Cuculus canorus,Common Cuckoo,gök
+eurnig1,Caprimulgus europaeus,European Nightjar,nattskärra
+comswi,Apus apus,Common Swift,tornseglare
+watrai1,Rallus aquaticus,Water Rail,vattenrall
+corcra,Crex crex,Corn Crake,kornknarr
+spocra1,Porzana porzana,Spotted Crake,småfläckig sumphöna
+commoo3,Gallinula chloropus,Common Moorhen,rörhöna
+eurcoo,Fulica atra,Eurasian Coot,sothöna
+comcra,Grus grus,Common Crane,trana
+pieavo1,Recurvirostra avosetta,Pied Avocet,skärfläcka
+euroys1,Haematopus ostralegus,Eurasian Oystercatcher,strandskata
+bkbplo,Pluvialis squatarola,Grey Plover,kustpipare
+eugplo,Pluvialis apricaria,European Golden Plover,ljungpipare
+norlap,Vanellus vanellus,Northern Lapwing,tofsvipa
+corplo,Charadrius hiaticula,Common Ringed Plover,större strandpipare
+lirplo,Charadrius dubius,Little Ringed Plover,mindre strandpipare
+eurdot,Charadrius morinellus,Eurasian Dotterel,fjällpipare
+whimbr,Numenius phaeopus,Eurasian Whimbrel,småspov
+eurcur,Numenius arquata,Eurasian Curlew,storspov
+batgod,Limosa lapponica,Bar-tailed Godwit,myrspov
+bktgod,Limosa limosa,Black-tailed Godwit,rödspov
+rudtur,Arenaria interpres,Ruddy Turnstone,roskarl
+redkno,Calidris canutus,Red Knot,kustsnäppa
+ruff,Calidris pugnax,Ruff,brushane
+brbsan,Calidris falcinellus,Broad-billed Sandpiper,myrsnäppa
+cursan,Calidris ferruginea,Curlew Sandpiper,spovsnäppa
+temsti,Calidris temminckii,Temminck's Stint,mosnäppa
+sander,Calidris alba,Sanderling,sandlöpare
+dunlin,Calidris alpina,Dunlin,kärrsnäppa
+pursan,Calidris maritima,Purple Sandpiper,skärsnäppa
+litsti,Calidris minuta,Little Stint,småsnäppa
+pecsan,Calidris melanotos,Pectoral Sandpiper,tuvsnäppa
+jacsni,Lymnocryptes minimus,Jack Snipe,dvärgbeckasin
+eurwoo,Scolopax rusticola,Eurasian Woodcock,morkulla
+gresni1,Gallinago media,Great Snipe,dubbelbeckasin
+comsni,Gallinago gallinago,Common Snipe,enkelbeckasin
+wilsni1,Gallinago delicata,Wilson's Snipe,wilsonbeckasin
+tersan,Xenus cinereus,Terek Sandpiper,tereksnäppa
+renpha,Phalaropus lobatus,Red-necked Phalarope,smalnäbbad simsnäppa
+comsan,Actitis hypoleucos,Common Sandpiper,drillsnäppa
+grnsan,Tringa ochropus,Green Sandpiper,skogssnäppa
+spored,Tringa erythropus,Spotted Redshank,svartsnäppa
+comgre,Tringa nebularia,Common Greenshank,gluttsnäppa
+marsan,Tringa stagnatilis,Marsh Sandpiper,dammsnäppa
+woosan,Tringa glareola,Wood Sandpiper,grönbena
+comred1,Tringa totanus,Common Redshank,rödbena
+parjae,Stercorarius parasiticus,Parasitic Jaeger,kustlabb
+lotjae,Stercorarius longicaudus,Long-tailed Jaeger,fjällabb
+commur,Uria aalge,Common Murre,sillgrissla
+razorb,Alca torda,Razorbill,tordmule
+blkgui,Cepphus grylle,Black Guillemot,tobisgrissla
+bkhgul,Chroicocephalus ridibundus,Black-headed Gull,skrattmås
+litgul,Hydrocoloeus minutus,Little Gull,dvärgmås
+mewgul,Larus canus,Mew Gull,fiskmås
+hergul,Larus argentatus,European Herring Gull,gråtrut
+casgul2,Larus cachinnans,Caspian Gull,kaspisk trut
+lbbgul,Larus fuscus,Lesser Black-backed Gull,silltrut
+gbbgul,Larus marinus,Great Black-backed Gull,havstrut
+litter1,Sternula albifrons,Little Tern,småtärna
+caster1,Hydroprogne caspia,Caspian Tern,skräntärna
+blkter,Chlidonias niger,Black Tern,svarttärna
+comter,Sterna hirundo,Common Tern,fisktärna
+arcter,Sterna paradisaea,Arctic Tern,silvertärna
+santer1,Thalasseus sandvicensis,Sandwich Tern,Kentsk tärna
+retloo,Gavia stellata,Red-throated Loon,smålom
+arcloo,Gavia arctica,Black-throated Loon,storlom
+grecor,Phalacrocorax carbo,Great Cormorant,storskarv
+grebit1,Botaurus stellaris,Eurasian Bittern,rördrom
+graher1,Ardea cinerea,Grey Heron,gråhäger
+bcnher,Nycticorax nycticorax,Black-crowned Night Heron,Natthäger
+osprey,Pandion haliaetus,Western Osprey,fiskgjuse
+euhbuz1,Pernis apivorus,European Honey Buzzard,bivråk
+goleag,Aquila chrysaetos,Golden Eagle,kungsörn
+wemhar1,Circus aeruginosus,Western Marsh Harrier,brun kärrhök
+norhar1,Circus cyaneus,Hen Harrier,blå kärrhök
+monhar1,Circus pygargus,Montagu's Harrier,ängshök
+eurspa1,Accipiter nisus,Eurasian Sparrowhawk,sparvhök
+norgos,Accipiter gentilis,Northern Goshawk,duvhök
+redkit1,Milvus milvus,Red Kite,röd glada
+blakit1,Milvus migrans,Black Kite,brun glada
+whteag,Haliaeetus albicilla,White-tailed Eagle,havsörn
+rolhaw,Buteo lagopus,Rough-legged Buzzard,fjällvråk
+combuz1,Buteo buteo,Common Buzzard,ormvråk
+brnowl,Tyto alba,Western Barn Owl,tornuggla
+eursco1,Otus scops,Eurasian Scops Owl,dvärguv
+eueowl1,Bubo bubo,Eurasian Eagle-Owl,berguv
+snoowl1,Bubo scandiacus,Snowy Owl,fjälluggla
+nohowl,Surnia ulula,Northern Hawk-Owl,hökuggla
+eupowl1,Glaucidium passerinum,Eurasian Pygmy Owl,sparvuggla
+tawowl1,Strix aluco,Tawny Owl,kattuggla
+uraowl1,Strix uralensis,Ural Owl,slaguggla
+grgowl,Strix nebulosa,Great Grey Owl,lappuggla
+loeowl,Asio otus,Long-eared Owl,hornuggla
+sheowl,Asio flammeus,Short-eared Owl,jorduggla
+borowl,Aegolius funereus,Boreal Owl,pärluggla
+hoopoe,Upupa epops,Eurasian Hoopoe,härfågel
+comkin1,Alcedo atthis,Common Kingfisher,kungsfiskare
+ncbeat1,Merops nubicus,Northern Carmine Bee-eater,Nordlig karminbiätare
+eurwry,Jynx torquilla,Eurasian Wryneck,göktyta
+ettwoo1,Picoides tridactylus,Eurasian Three-toed Woodpecker,tretåig hackspett
+miswoo1,Dendrocoptes medius,Middle Spotted Woodpecker,mellanspett
+whbwoo1,Dendrocopos leucotos,White-backed Woodpecker,vitryggig hackspett
+grswoo,Dendrocopos major,Great Spotted Woodpecker,Större hackspett
+leswoo1,Dryobates minor,Lesser Spotted Woodpecker,mindre hackspett
+gyfwoo1,Picus canus,Grey-headed Woodpecker,gråspett
+eugwoo2,Picus viridis,European Green Woodpecker,gröngöling
+blawoo1,Dryocopus martius,Black Woodpecker,spillkråka
+eurkes,Falco tinnunculus,Common Kestrel,tornfalk
+merlin,Falco columbarius,Merlin,stenfalk
+eurhob,Falco subbuteo,Eurasian Hobby,lärkfalk
+gyrfal,Falco rusticolus,Gyrfalcon,jaktfalk
+perfal,Falco peregrinus,Peregrine Falcon,pilgrimsfalk
+eugori2,Oriolus oriolus,Eurasian Golden Oriole,sommargylling
+rebshr1,Lanius collurio,Red-backed Shrike,törnskata
+norshr1,Lanius excubitor,Great Grey Shrike,varfågel
+sibjay1,Perisoreus infaustus,Siberian Jay,lavskrika
+eurjay1,Garrulus glandarius,Eurasian Jay,nötskrika
+eurmag1,Pica pica,Eurasian Magpie,skata
+eurnut1,Nucifraga caryocatactes,Spotted Nutcracker,nötkråka
+rook1,Corvus frugilegus,Rook,råka
+carcro1,Corvus corone,Carrion Crow,kråka
+hoocro1,Corvus cornix,Hooded Crow,gråkråka
+comrav,Corvus corax,Northern Raven,korp
+coatit2,Periparus ater,Coal Tit,svartmes
+cretit2,Lophophanes cristatus,European Crested Tit,tofsmes
+martit2,Poecile palustris,Marsh Tit,entita
+wiltit1,Poecile montanus,Willow Tit,talltita
+gyhchi,Poecile cinctus,Grey-headed Chickadee,lappmes
+blutit,Cyanistes caeruleus,Eurasian Blue Tit,blåmes
+gretit1,Parus major,Great Tit,talgoxe
+euptit1,Remiz pendulinus,Eurasian Penduline Tit,pungmes
+horlar,Eremophila alpestris,Horned Lark,berglärka
+gstlar1,Calandrella brachydactyla,Greater Short-toed Lark,korttålärka
+woolar1,Lullula arborea,Woodlark,trädlärka
+skylar,Alauda arvensis,Eurasian Skylark,sånglärka
+bearee1,Panurus biarmicus,Bearded Reedling,skäggmes
+boowar1,Iduna caligata,Booted Warbler,stäppsångare
+eaowar1,Iduna pallida,Eastern Olivaceous Warbler,eksångare
+melwar1,Hippolais polyglotta,Melodious Warbler,polyglottsångare
+ictwar1,Hippolais icterina,Icterine Warbler,härmsångare
+sedwar1,Acrocephalus schoenobaenus,Sedge Warbler,sävsångare
+blrwar1,Acrocephalus dumetorum,Blyth's Reed Warbler,busksångare
+marwar3,Acrocephalus palustris,Marsh Warbler,kärrsångare
+eurwar1,Acrocephalus scirpaceus,Eurasian Reed Warbler,rörsångare
+grrwar1,Acrocephalus arundinaceus,Great Reed Warbler,trastsångare
+lanwar,Locustella lanceolata,Lanceolated Warbler,träsksångare
+eurwar2,Locustella fluviatilis,River Warbler,flodsångare
+savwar1,Locustella luscinioides,Savi's Warbler,vassångare
+cogwar1,Locustella naevia,Common Grasshopper Warbler,gräshoppsångare
+banswa,Riparia riparia,Sand Martin,backsvala
+barswa,Hirundo rustica,Barn Swallow,Ladusvala
+rerswa1,Cecropis daurica,Red-rumped Swallow,rostgumpsvala
+cohmar1,Delichon urbicum,Common House Martin,hussvala
+woowar,Phylloscopus sibilatrix,Wood Warbler,grönsångare
+webwar1,Phylloscopus bonelli,Western Bonelli's Warbler,bergsångare
+eabwar1,Phylloscopus orientalis,Eastern Bonelli's Warbler,balkansångare
+yebwar3,Phylloscopus inornatus,Yellow-browed Warbler,tajgasångare
+humwar1,Phylloscopus humei,Hume's Leaf Warbler,bergtajgasångare
+palwar5,Phylloscopus proregulus,Pallas's Leaf Warbler,kungsfågelsångare
+radwar1,Phylloscopus schwarzi,Radde's Warbler,videsångare
+duswar,Phylloscopus fuscatus,Dusky Warbler,brunsångare
+wlwwar,Phylloscopus trochilus,Willow Warbler,lövsångare
+comchi1,Phylloscopus collybita,Common Chiffchaff,gransångare
+ibechi2,Phylloscopus ibericus,Iberian Chiffchaff,iberisk gransångare
+grewar3,Phylloscopus trochiloides,Greenish Warbler,lundsångare
+arcwar1,Phylloscopus borealis,Arctic Warbler,nordsångare
+cetwar1,Cettia cetti,Cetti's Warbler,cettisångare
+lottit1,Aegithalos caudatus,Long-tailed Tit,stjärtmes
+blackc1,Sylvia atricapilla,Eurasian Blackcap,svarthätta
+garwar1,Sylvia borin,Garden Warbler,trädgårdssångare
+goldcr1,Regulus regulus,Goldcrest,kungsfågel
+firecr1,Regulus ignicapilla,Common Firecrest,Brandkronad kungsfågel
+eurnut2,Sitta europaea,Eurasian Nuthatch,nötväcka
+eurtre1,Certhia familiaris,Eurasian Treecreeper,trädkrypare
+shttre1,Certhia brachydactyla,Short-toed Treecreeper,trädgårdsträdkrypare
+winwre4,Troglodytes troglodytes,Eurasian Wren,gärdsmyg
+whtdip1,Cinclus cinclus,White-throated Dipper,strömstare
+eursta,Sturnus vulgaris,Common Starling,stare
+misthr1,Turdus viscivorus,Mistle Thrush,dubbeltrast
+sonthr1,Turdus philomelos,Song Thrush,taltrast
+redwin,Turdus iliacus,Redwing,rödvingetrast
+eurbla,Turdus merula,Common Blackbird,koltrast
+fieldf,Turdus pilaris,Fieldfare,björktrast
+rinouz1,Turdus torquatus,Ring Ouzel,ringtrast
+datthr1,Turdus atrogularis,Black-throated Thrush,svarthalsad trast
+spofly1,Muscicapa striata,Spotted Flycatcher,grå flugsnappare
+eurrob1,Erithacus rubecula,European Robin,rödhake
+thrnig1,Luscinia luscinia,Thrush Nightingale,näktergal
+comnig1,Luscinia megarhynchos,Common Nightingale,sydnäktergal
+blueth,Luscinia svecica,Bluethroat,blåhake
+sibrub,Calliope calliope,Siberian Rubythroat,rubinnäktergal
+refblu,Tarsiger cyanurus,Red-flanked Bluetail,tajgablåstjärt
+rebfly,Ficedula parva,Red-breasted Flycatcher,mindre flugsnappare
+eupfly1,Ficedula hypoleuca,European Pied Flycatcher,svartvit flugsnappare
+colfly1,Ficedula albicollis,Collared Flycatcher,halsbandsflugsnappare
+comred2,Phoenicurus phoenicurus,Common Redstart,rödstjärt
+blared1,Phoenicurus ochruros,Black Redstart,Svart rödstjärt
+whinch1,Saxicola rubetra,Whinchat,buskskvätta
+stonec4,Saxicola rubicola,European Stonechat,svarthakad buskskvätta
+norwhe,Oenanthe oenanthe,Northern Wheatear,stenskvätta
+bohwax,Bombycilla garrulus,Bohemian Waxwing,sidensvans
+sibacc,Prunella montanella,Siberian Accentor,Sibirisk järnsparv
+dunnoc1,Prunella modularis,Dunnock,järnsparv
+houspa,Passer domesticus,House Sparrow,gråsparv
+spaspa1,Passer hispaniolensis,Spanish Sparrow,Spansk sparv
+eutspa,Passer montanus,Eurasian Tree Sparrow,pilfink
+grywag,Motacilla cinerea,Grey Wagtail,forsärla
+eaywag1,Motacilla flava,Western Yellow Wagtail,gulärla
+eaywag,Motacilla tschutschensis,Eastern Yellow Wagtail,Grönkronad ärla
+citwag,Motacilla citreola,Citrine Wagtail,citronärla
+whiwag,Motacilla alba,White Wagtail,sädesärla
+ricpip1,Anthus richardi,Richard's Pipit,större piplärka
+blypip1,Anthus godlewskii,Blyth's Pipit,mongolpiplärka
+tawpip1,Anthus campestris,Tawny Pipit,fältpiplärka
+meapip1,Anthus pratensis,Meadow Pipit,ängspiplärka
+trepip,Anthus trivialis,Tree Pipit,trädpiplärka
+olbpip,Anthus hodgsoni,Olive-backed Pipit,sibirisk piplärka
+retpip,Anthus cervinus,Red-throated Pipit,rödstrupig piplärka
+watpip1,Anthus spinoletta,Water Pipit,vattenpiplärka
+rocpip1,Anthus petrosus,Eurasian Rock Pipit,skärpiplärka
+comcha,Fringilla coelebs,Common Chaffinch,bofink
+brambl,Fringilla montifringilla,Brambling,bergfink
+hawfin,Coccothraustes coccothraustes,Hawfinch,stenknäck
+comros,Carpodacus erythrinus,Common Rosefinch,rosenfink
+pingro,Pinicola enucleator,Pine Grosbeak,tallbit
+eurbul,Pyrrhula pyrrhula,Eurasian Bullfinch,domherre
+trufin2,Bucanetes githagineus,Trumpeter Finch,ökentrumpetare
+monfin2,Bucanetes mongolicus,Mongolian Finch,mongolfink
+eurgre1,Chloris chloris,European Greenfinch,grönfink
+twite1,Linaria flavirostris,Twite,vinterhämpling
+eurlin1,Linaria cannabina,Common Linnet,hämpling
+comred,Acanthis flammea,Common Redpoll,gråsiska
+lesred1,Acanthis cabaret,Lesser Redpoll,brunsiska
+hoared,Acanthis hornemanni,Arctic Redpoll,snösiska
+parcro2,Loxia pytyopsittacus,Parrot Crossbill,större korsnäbb
+redcro,Loxia curvirostra,Red Crossbill,mindre korsnäbb
+whwcro,Loxia leucoptera,Two-barred Crossbill,bändelkorsnäbb
+eurgol,Carduelis carduelis,European Goldfinch,steglits
+eurser1,Serinus serinus,European Serin,gulhämpling
+eursis,Spinus spinus,Eurasian Siskin,grönsiska
+laplon,Calcarius lapponicus,Lapland Longspur,lappsparv
+snobun,Plectrophenax nivalis,Snow Bunting,snösparv
+corbun1,Emberiza calandra,Corn Bunting,kornsparv
+cirbun1,Emberiza cirlus,Cirl Bunting,häcksparv
+yellow2,Emberiza citrinella,Yellowhammer,gulsparv
+pinbun,Emberiza leucocephalos,Pine Bunting,tallsparv
+ortbun1,Emberiza hortulana,Ortolan Bunting,ortolansparv
+reebun,Emberiza schoeniclus,Common Reed Bunting,sävsparv
+litbun,Emberiza pusilla,Little Bunting,dvärgsparv
+rusbun,Emberiza rustica,Rustic Bunting,videsparv
+amtspa,Spizelloides arborea,American Tree Sparrow,tundrasparv

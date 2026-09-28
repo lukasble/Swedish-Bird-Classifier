@@ -13,6 +13,7 @@ data/
 *.pt
 *.pth
 
-# DO NOT ignore ONNX models or JSON mappings needed for GitHub Pages
+# DO NOT ignore ONNX models, JSON mappings, or web dictionary needed for GitHub Pages
 !*.onnx
 !*.json
+!bird_names_dictionary.csv
