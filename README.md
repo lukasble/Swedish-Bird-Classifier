@@ -35,7 +35,7 @@ The project uses a clean, flat architecture to keep client-side execution fast a
 ├── model.onnx
 ├── styles.css
 └── README.md
-
+```
 
 ### Directory & File Descriptions
 
