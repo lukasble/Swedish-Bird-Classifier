@@ -10,46 +10,76 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="layout-wrapper">
-        <!-- VÄNSTERPANEL: Exempelljud -->
-        <aside class="sidebar-card">
-            <h3 id="sidebar-title">🎧 Exempelljud</h3>
-            <p id="sidebar-desc">Ladda ner eller testa ett exempelljud direkt för att utvärdera modellen utan att behöva ladda upp egna filer.</p>
-            
-            <ul class="example-list">
-                <li class="example-item">
-                    <span class="example-name" data-sv="Skata" data-en="Eurasian Magpie">Skata</span>
-                    <div class="example-actions">
-                        <button class="btn-test" onclick="loadExampleAudio('samples/skata-magpie.mp3')">⚡ <span class="btn-test-text">Testa</span></button>
-                        <a href="samples/skata-magpie.mp3" download class="btn-download" title="Ladda ner">⬇️</a>
-                    </div>
-                </li>
-                <li class="example-item">
-                    <span class="example-name" data-sv="Gråsparv" data-en="House Sparrow">Gråsparv</span>
-                    <div class="example-actions">
-                        <button class="btn-test" onclick="loadExampleAudio('samples/gråsparv-housesparrow.mp3')">⚡ <span class="btn-test-text">Testa</span></button>
-                        <a href="samples/gråsparv-housesparrow.mp3" download class="btn-download" title="Ladda ner">⬇️</a>
-                    </div>
-                </li>
-                <li class="example-item">
-                    <span class="example-name" data-sv="Domherre" data-en="Eurasian Bullfinch">Domherre</span>
-                    <div class="example-actions">
-                        <button class="btn-test" onclick="loadExampleAudio('samples/domherre-bullfinch.mp3')">⚡ <span class="btn-test-text">Testa</span></button>
-                        <a href="samples/domherre-bullfinch.mp3" download class="btn-download" title="Ladda ner">⬇️</a>
-                    </div>
-                </li>
-            </ul>
-        </aside>
+    <!-- Logga absolut positionerad i det övre vänstra hörnet -->
+    <a href="#" class="top-left-logo" title="NordicBird AI">
+        <img src="images/logo.png" alt="Logga">
+    </a>
 
-        <!-- HÖGER/MITTKORT: Huvudappen -->
-        <div class="container">
-            <button id="lang-toggle-btn" class="lang-btn">Språk: Svenska</button>
-            <header>
-                <h1 id="app-title">🦅 Fågelartklassificerare</h1>
-                <p id="app-subtitle">Ladda upp en ljudfil (.wav eller .mp3) för att identifiera fågelarten direkt i din webbläsare.</p>
-            </header>
+    <!-- Global språkknapp i hörnet med aktivt språk highlightat -->
+    <div class="language-switcher">
+        <span class="lang-label">Language:</span>
+        <button id="lang-toggle-btn" class="global-lang-btn">
+            <span id="lang-sv" class="lang-option active">SV</span> / <span id="lang-en" class="lang-option">EN</span>
+        </button>
+    </div>
 
-            <main>
+    <!-- Huvudomslutning för hela sidan -->
+    <div class="site-wrapper">
+        <!-- Sidans huvudtitel högst upp i vit text utan kort -->
+        <header class="site-top-header">
+            <h1 class="site-main-title">NordicBird AI</h1>
+            <p id="site-subtitle" class="site-url-hint">ljudbaserad artidentifiering</p>
+        </header>
+
+        <div class="layout-wrapper">
+            <!-- VÄNSTERSPALT: Exempelljud i ett eget, mindre kort -->
+            <aside class="sidebar-card">
+                <h3 id="sidebar-title">Exempelljud</h3>
+                <p id="sidebar-desc">Ladda ner eller testa ett exempelljud direkt för att utvärdera modellen utan att behöva ladda upp egna filer.</p>
+
+                <ul class="example-list">
+                    <li class="example-item">
+                        <span class="example-name" data-sv="Skata" data-en="Eurasian Magpie">Skata</span>
+                        <div class="example-actions">
+                            <button class="btn-test" onclick="loadExampleAudio('samples/skata-magpie.mp3')"><span class="btn-test-text">Testa</span></button>
+                            <a href="samples/skata-magpie.mp3" download class="btn-download" title="Ladda ner">↓</a>
+                        </div>
+                    </li>
+                    <li class="example-item">
+                        <span class="example-name" data-sv="Gråsparv" data-en="House Sparrow">Gråsparv</span>
+                        <div class="example-actions">
+                            <button class="btn-test" onclick="loadExampleAudio('samples/gråsparv-housesparrow.mp3')"><span class="btn-test-text">Testa</span></button>
+                            <a href="samples/gråsparv-housesparrow.mp3" download class="btn-download" title="Ladda ner">↓</a>
+                        </div>
+                    </li>
+                    <li class="example-item">
+                        <span class="example-name" data-sv="Domherre" data-en="Eurasian Bullfinch">Domherre</span>
+                        <div class="example-actions">
+                            <button class="btn-test" onclick="loadExampleAudio('samples/domherre-bullfinch.mp3')"><span class="btn-test-text">Testa</span></button>
+                            <a href="samples/domherre-bullfinch.mp3" download class="btn-download" title="Ladda ner">↓</a>
+                        </div>
+                    </li>
+                </ul>
+            </aside>
+
+            <!-- HUVUDKORT I CENTRUM -->
+            <main class="container">
+                <header>
+                    <h1 id="app-title">Fågelartklassificerare</h1>
+                    
+                    <div class="artfakta-tip">
+                        <p id="artfakta-text">
+                            Testa att ladda upp ett eget inspelat fågelljud eller ladda ner ljud för att testa den ljudbaserade AI modellen från 
+                            <a href="https://artfakta.se/sok" target="_blank" style="color: #3498db; text-decoration: underline;">SLU Artbanken</a>.
+                        </p>
+                    </div>
+
+                    <!-- Skiljelinje mellan texterna -->
+                    <hr class="section-divider">
+
+                    <p id="app-subtitle">Ladda upp en ljudfil (.wav eller .mp3) för att identifiera fågelarten direkt i din webbläsare.</p>
+                </header>
+
                 <div id="status" class="status-box">Laddar AI-modell...</div>
 
                 <section class="upload-section">
@@ -58,22 +88,31 @@
                 </section>
 
                 <section id="results" class="results-section" style="display: none;">
-                    <!-- 1. Klassificeringstext och sannolikhet överst -->
                     <h2><span id="lbl-top-match">Bästa matchning:</span> <span id="top-species">---</span></h2>
                     <p><span id="lbl-confidence">Sannolikhet:</span> <strong id="top-confidence">0%</strong></p>
-                    
-                    <!-- 2. Bilden under texten -->
+
                     <div class="bird-image-container">
-                        <img id="bird-image" src="images/fågel.png" alt="Fågelbild" style="max-width: 100%; height: auto; border-radius: 8px;">
+                        <img id="bird-image" alt="Fågelbild" style="max-width: 100%; height: auto; border-radius: 8px;">
                     </div>
 
-                    <!-- 3. Diagrammet under bilden -->
                     <div class="chart-container">
                         <canvas id="confidence-chart"></canvas>
                     </div>
                 </section>
             </main>
         </div>
+    </div>
+
+    <!-- Info-knapp i nedre högra hörnet -->
+    <div class="info-widget">
+        <div id="info-popup" class="info-popup">
+            <h4 id="info-title">Om projektet</h4>
+            <p id="info-desc">Denna app är en webbläsarbaserad AI-klassificerare för fågelläten som körs helt lokalt via ONNX Runtime Web och EfficientNet.</p>
+            <div class="info-links">
+                <a id="info-link" href="#" target="_blank">📖 Läs bygguiden & arkitekturen</a>
+            </div>
+        </div>
+        <button id="info-btn" class="info-toggle-btn" title="Information om projektet">i</button>
     </div>
 
     <script src="app.js"></script>

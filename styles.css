@@ -1,36 +1,312 @@
+/* Global CSS variables */
+:root {
+    --card-bg: #ffffff;
+    --primary-color: #2c5e3b;
+    --primary-hover: #1e3f27;
+    --accent-color: #3498db;
+    --text-main: #2d3748;
+    --text-muted: #718096;
+    --border-color: #e2e8f0;
+}
+
+/* HTML base rules */
+html {
+    overscroll-behavior: none;
+    height: 100%;
+}
+
+/* Main body styling and background image */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: #f4f7f6;
-    color: #333;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), #2c5e3b url('images/skog.JPG');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: var(--text-main);
     margin: 0;
-    padding: 20px;
+    padding: 30px 20px;
+    min-height: 100vh;
+    position: relative;
+    overscroll-behavior: none;
+}
+
+/* Main wrapper for the overall site layout */
+.site-wrapper {
     display: flex;
-    justify-content: center;
-}
-
-.container {
-    max-width: 700px;
+    flex-direction: column;
+    align-items: center;
     width: 100%;
-    background: #fff;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
-header h1 {
-    margin-top: 0;
-    color: #2c3e50;
+/* Container for the top-left logo button */
+.top-left-logo {
+    position: fixed;
+    top: -80px;
+    left: -80px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 310px;
+    height: 310px;
+    transition: transform 0.2s;
 }
 
-.status-box {
-    padding: 12px 16px;
-    background-color: #e8f4fd;
-    border-left: 4px solid #3498db;
-    margin-bottom: 20px;
-    border-radius: 4px;
+/* Hover effect for the top-left logo */
+.top-left-logo:hover {
+    transform: scale(1.05);
+}
+
+/* Logo image styling inside the container */
+.top-left-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Site header container at the top */
+.site-top-header {
+    text-align: center;
+    max-width: 1100px;
+    width: 100%;
+    margin: 10px auto 25px auto;
+    box-sizing: border-box;
+}
+
+/* Main title styling */
+.site-main-title {
+    margin: 0;
+    font-size: 2.2rem;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+/* URL / Subtitle hint styling */
+.site-url-hint {
+    margin: 5px 0 0 0;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    font-weight: 500;
+}
+
+/* Language switcher widget in top-right corner */
+.language-switcher {
+    position: fixed;
+    top: 25px;
+    right: 30px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    padding: 8px 14px;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    z-index: 1000;
+}
+
+/* Label inside the language switcher */
+.lang-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+}
+
+/* Global button for toggling language */
+.global-lang-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+/* General language option styling */
+.lang-option {
+    transition: all 0.2s;
+}
+
+/* Active language option highlight */
+.lang-option.active {
+    font-weight: 800;
+    color: var(--primary-color);
     font-size: 0.95rem;
 }
 
+/* Layout container wrapping sidebar and main content */
+.layout-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* Sidebar card container (Placerad mer till vänster, smalare och med bra avstånd) */
+.sidebar-card {
+    position: absolute;
+    left: -20px;
+    top: 100px;
+    width: 240px;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 20px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    box-sizing: border-box;
+}
+
+/* Sidebar card section heading */
+.sidebar-card h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+    font-size: 1.05rem;
+    margin-bottom: 8px;
+}
+
+/* Sidebar card description text */
+.sidebar-card p {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+    margin-bottom: 12px;
+}
+
+/* Example audio list container */
+.example-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0 0;
+}
+
+/* Individual example audio item row */
+.example-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+/* Hover state for example audio item */
+.example-item:hover {
+    border-color: var(--primary-color);
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(44, 94, 59, 0.1);
+}
+
+/* Species name text inside example item */
+.example-name {
+    font-weight: 500;
+    font-size: 0.82rem;
+}
+
+/* Action buttons wrapper for example audio items */
+.example-actions {
+    display: flex;
+    gap: 4px;
+}
+
+/* Base button styling for testing and downloading examples */
+.btn-test, .btn-download {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    padding: 4px 7px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.2s;
+}
+
+/* Test button specific text styling */
+.btn-test {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Hover state for test button */
+.btn-test:hover {
+    background: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
+}
+
+/* Hover state for download button */
+.btn-download:hover {
+    background: #edf2f7;
+}
+
+/* Main content card container (Exakt centrerat i mitten) */
+.container {
+    width: 100%;
+    max-width: 650px;
+    background: var(--card-bg);
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    box-sizing: border-box;
+}
+
+/* Main card title */
+header h1 {
+    margin-top: 0;
+    font-size: 1.6rem;
+    color: #1a202c;
+    margin-bottom: 12px;
+}
+
+/* Artfakta tip styling inside main card */
+.artfakta-tip {
+    font-size: 0.9em;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.artfakta-tip p {
+    margin: 0;
+    color: var(--text-main);
+}
+
+/* Skiljelinje mellan texterna i huvudkortet */
+.section-divider {
+    border: 0;
+    height: 1px;
+    background: var(--border-color);
+    margin: 18px 0;
+}
+
+/* Main card description paragraph */
+header p#app-subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+}
+
+/* Status message display box */
+.status-box {
+    padding: 12px 16px;
+    background-color: #f0f7f2;
+    border-left: 4px solid #2c5e3b;
+    margin-bottom: 25px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    color: #1e3f27;
+}
+
+/* File upload section container */
 .upload-section {
     display: flex;
     flex-direction: column;
@@ -38,20 +314,167 @@ header h1 {
     margin-bottom: 25px;
 }
 
+/* Custom file input area styling */
 input[type="file"] {
-    padding: 10px;
+    padding: 16px;
     border: 2px dashed #cbd5e1;
     border-radius: 8px;
     cursor: pointer;
+    background: #fafafa;
+    transition: border-color 0.2s;
+    width: 100%;
+    box-sizing: border-box;
 }
 
+/* File input area hover state */
+input[type="file"]:hover {
+    border-color: var(--primary-color);
+}
+
+/* HTML5 audio player styling */
+audio {
+    width: 100%;
+    margin-top: 5px;
+}
+
+/* Classification results section container */
 .results-section {
-    border-top: 1px solid #e2e8f0;
-    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 25px;
 }
 
+/* Classification results header */
+.results-section h2 {
+    font-size: 1.25rem;
+    margin-top: 0;
+    color: var(--text-main);
+}
+
+/* Container for displaying top species image */
+.bird-image-container {
+    margin: 20px 0;
+    text-align: center;
+    background: #f8fafc;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+/* Bird image sizing and object fit */
+.bird-image-container img {
+    max-height: 200px;
+    object-fit: contain;
+}
+
+/* Container for Chart.js confidence chart */
 .chart-container {
     position: relative;
-    height: 250px;
+    height: 230px;
     margin-top: 20px;
+}
+
+/* Floating info widget wrapper in bottom-right corner */
+.info-widget {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 9999;
+}
+
+/* Toggle button for project info popup */
+.info-toggle-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #ffffff;
+    color: var(--primary-color);
+    border: 1px solid var(--border-color);
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, background 0.2s;
+}
+
+/* Hover state for info toggle button */
+.info-toggle-btn:hover {
+    background: #f8fafc;
+    transform: scale(1.05);
+}
+
+/* Popup container for project details */
+.info-popup {
+    position: absolute;
+    bottom: 55px;
+    right: 0;
+    width: 280px;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    display: none;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: var(--text-main);
+}
+
+/* Visible state class for the info popup */
+.info-popup.show {
+    display: block;
+}
+
+/* Header inside the info popup */
+.info-popup h4 {
+    margin: 0 0 8px 0;
+    color: var(--primary-color);
+    font-size: 0.95rem;
+}
+
+/* Links inside the info popup */
+.info-popup a {
+    color: var(--accent-color);
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 10px;
+    font-weight: 500;
+}
+
+/* Hover state for info popup links */
+.info-popup a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive layout adjustments for mobile screens */
+@media (max-width: 1100px) {
+    .layout-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+    .sidebar-card {
+        position: static;
+        width: 100%;
+        max-width: 650px;
+        margin-bottom: 25px;
+    }
+    .container {
+        width: 100%;
+        max-width: 650px;
+    }
+    .top-left-logo {
+        top: 15px;
+        left: 15px;
+    }
+    .language-switcher {
+        top: 15px;
+        right: 15px;
+        padding: 6px 10px;
+    }
+    .site-main-title {
+        font-size: 1.8rem;
+        margin-top: 35px;
+    }
 }

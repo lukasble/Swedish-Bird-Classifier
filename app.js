@@ -1,52 +1,74 @@
-let session = null;
-let classMapping = {};
-let birdDictionary = {};
-let currentLanguage = 'sv';
-let chartInstance = null;
-let lastTop5Results = null;
-let currentStatusKey = 'loadingModel';
+/**
+ * Global Application State Variables
+ */
+let session = null;                  // Holds the ONNX Runtime Web inference session
+let classMapping = {};             // Maps output model indices to internal species codes
+let birdDictionary = {};           // Maps species codes to scientific, English, and Swedish names
+let currentLanguage = 'sv';        // Active UI language ('sv' or 'en')
+let chartInstance = null;          // Reference to the Chart.js instance for rendering probabilities
+let lastTop5Results = null;        // Stores the last computed top 5 classification results
+let currentStatusKey = 'loadingModel'; // Key reflecting the current operational status
+let currentObjectUrl = null;       // Stores object URL for proper memory cleanup
 
+/**
+ * UI Translation Dictionary
+ * Contains all static UI texts in Swedish (sv) and English (en).
+ */
 const uiTranslations = {
     sv: {
-        langBtn: "Språk: Svenska",
-        appTitle: "🦅 Fågelartklassificerare",
+        siteSubtitle: "ljudbaserad artidentifiering",
+        appTitle: "Fågelartklassificerare",
         appSubtitle: "Ladda upp en ljudfil (.wav eller .mp3) för att identifiera fågelarten direkt i din webbläsare.",
         lblTopMatch: "Bästa matchning:",
         lblConfidence: "Sannolikhet:",
         chartLabel: "Sannolikhet (%)",
-        sidebarTitle: "🎧 Exempelljud",
+        sidebarTitle: "Exempelljud",
         sidebarDesc: "Ladda ner eller testa ett exempelljud direkt för att utvärdera modellen utan att behöva ladda upp egna filer.",
         btnTest: "Testa",
+        artfaktaText: 'Testa att ladda upp ett eget inspelat fågelljud eller ladda ner ljud för att testa den ljudbaserade AI modellen från <a href="https://artfakta.se/sok" target="_blank" rel="noopener noreferrer" style="color: #3498db; text-decoration: underline;">SLU Artbanken</a>.',
         loadingModel: "Laddar AI-modell...",
         loadingMapping: "Laddar artmappning...",
         loadingDict: "Laddar fågelordbok...",
         ready: "Klar! Ladda upp en ljudfil för att klassificera.",
         extracting: "Extraherar Mel-spektrogram...",
         runningInference: "Kör AI-modell...",
-        complete: "Klassificering klar!"
+        complete: "Klassificering klar!",
+        infoTitle: "Om projektet",
+        infoDesc: "Denna app är en webbläsarbaserad AI-klassificerare för fågelläten som körs helt lokalt via ONNX Runtime Web och EfficientNet.",
+        infoLinkText: "📖 Läs bygguiden & arkitekturen",
+        infoBtnTitle: "Information om projektet"
     },
     en: {
-        langBtn: "Language: English",
-        appTitle: "🦅 Bird Species Classifier",
+        siteSubtitle: "audio-based species identification",
+        appTitle: "Bird Species Classifier",
         appSubtitle: "Upload an audio file (.wav or .mp3) to identify the bird species directly in your browser.",
         lblTopMatch: "Top Match:",
         lblConfidence: "Confidence:",
         chartLabel: "Confidence (%)",
-        sidebarTitle: "🎧 Sample Sounds",
+        sidebarTitle: "Sample Sounds",
         sidebarDesc: "Download or test a sample sound directly to evaluate the model without needing to upload your own files.",
         btnTest: "Test",
+        artfaktaText: 'Try uploading your own recorded bird sound or download audio to test the soundbased AI model from <a href="https://artfakta.se/sok" target="_blank" rel="noopener noreferrer" style="color: #3498db; text-decoration: underline;">SLU Species Database</a>.',
         loadingModel: "Loading AI model...",
         loadingMapping: "Loading species class mapping...",
         loadingDict: "Loading bird names dictionary...",
         ready: "Ready! Upload an audio file to classify.",
         extracting: "Extracting Mel-Spectrogram...",
         runningInference: "Running AI model...",
-        complete: "Classification complete!"
+        complete: "Classification complete!",
+        infoTitle: "About the Project",
+        infoDesc: "This app is a browser-based AI classifier for bird calls running entirely locally via ONNX Runtime Web and EfficientNet.",
+        infoLinkText: "📖 Read the build guide & architecture",
+        infoBtnTitle: "Information about the project"
     }
 };
 
-let statusEl, audioInput, audioPlayer, resultsSection, topSpeciesEl, topConfidenceEl, langToggleBtn, appTitleEl, appSubtitleEl, lblTopMatchEl, lblConfidenceEl, birdImageEl;
+// DOM Element references
+let statusEl, audioInput, audioPlayer, resultsSection, topSpeciesEl, topConfidenceEl, langToggleBtn, appTitleEl, appSubtitleEl, siteSubtitleEl, lblTopMatchEl, lblConfidenceEl, birdImageEl, artfaktaEl;
 
+/**
+ * Initializes DOM element references and attaches event listeners.
+ */
 function initDOM() {
     statusEl = document.getElementById('status');
     audioInput = document.getElementById('audio-input');
@@ -57,10 +79,13 @@ function initDOM() {
     langToggleBtn = document.getElementById('lang-toggle-btn');
     appTitleEl = document.getElementById('app-title');
     appSubtitleEl = document.getElementById('app-subtitle');
+    siteSubtitleEl = document.getElementById('site-subtitle');
     lblTopMatchEl = document.getElementById('lbl-top-match');
     lblConfidenceEl = document.getElementById('lbl-confidence');
     birdImageEl = document.getElementById('bird-image');
+    artfaktaEl = document.getElementById('artfakta-text');
 
+    // Language switch button handler
     if (langToggleBtn) {
         langToggleBtn.addEventListener('click', () => {
             currentLanguage = currentLanguage === 'sv' ? 'en' : 'sv';
@@ -71,12 +96,35 @@ function initDOM() {
         });
     }
 
+    // Info popup toggle handler
+    const infoBtn = document.getElementById('info-btn');
+    const infoPopup = document.getElementById('info-popup');
+
+    if (infoBtn && infoPopup) {
+        infoBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            infoPopup.classList.toggle('show');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!infoPopup.contains(e.target) && e.target !== infoBtn) {
+                infoPopup.classList.remove('show');
+            }
+        });
+    }
+
+    // Audio file upload input listener
     if (audioInput) {
         audioInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
-            audioPlayer.src = URL.createObjectURL(file);
+            // Revoke old Object URL to avoid memory leaks
+            if (currentObjectUrl) {
+                URL.revokeObjectURL(currentObjectUrl);
+            }
+            currentObjectUrl = URL.createObjectURL(file);
+            audioPlayer.src = currentObjectUrl;
             audioPlayer.style.display = 'block';
 
             setStatus('extracting');
@@ -91,47 +139,96 @@ function initDOM() {
                 setStatus('complete');
             } catch (err) {
                 console.error("Processing failed:", err);
-                if (statusEl) statusEl.innerText = `Fel vid ljudbearbetning: ${err.message}`;
+                if (statusEl) {
+                    // Safe text assignment avoiding innerHTML injection
+                    statusEl.textContent = `Fel vid ljudbearbetning: ${err.message}`;
+                }
             }
         });
     }
+
+    updateStaticText();
 }
 
+/**
+ * Updates status text safely based on internationalization keys.
+ * @param {string} statusKey - Key corresponding to uiTranslations.
+ */
 function setStatus(statusKey) {
     currentStatusKey = statusKey;
     if (statusEl) {
-        statusEl.innerText = uiTranslations[currentLanguage][statusKey] || statusKey;
+        statusEl.textContent = uiTranslations[currentLanguage][statusKey] || statusKey;
     }
 }
 
+/**
+ * Updates all static UI texts when switching languages or initializing.
+ */
 function updateStaticText() {
     const t = uiTranslations[currentLanguage];
     
-    if (langToggleBtn) langToggleBtn.innerText = t.langBtn;
-    if (appTitleEl) appTitleEl.innerText = t.appTitle;
-    if (appSubtitleEl) appSubtitleEl.innerText = t.appSubtitle;
-    if (lblTopMatchEl) lblTopMatchEl.innerText = t.lblTopMatch;
-    if (lblConfidenceEl) lblConfidenceEl.innerText = t.lblConfidence;
+    if (siteSubtitleEl) siteSubtitleEl.textContent = t.siteSubtitle;
+    if (appTitleEl) appTitleEl.textContent = t.appTitle;
+    if (appSubtitleEl) appSubtitleEl.textContent = t.appSubtitle;
+    if (lblTopMatchEl) lblTopMatchEl.textContent = t.lblTopMatch;
+    if (lblConfidenceEl) lblConfidenceEl.textContent = t.lblConfidence;
+    
+    // Controlled innerHTML update for trusted static template string
+    if (artfaktaEl) artfaktaEl.innerHTML = t.artfaktaText;
     
     const sidebarTitleEl = document.getElementById('sidebar-title');
     const sidebarDescEl = document.getElementById('sidebar-desc');
-    if (sidebarTitleEl) sidebarTitleEl.innerText = t.sidebarTitle;
-    if (sidebarDescEl) sidebarDescEl.innerText = t.sidebarDesc;
+    if (sidebarTitleEl) sidebarTitleEl.textContent = t.sidebarTitle;
+    if (sidebarDescEl) sidebarDescEl.textContent = t.sidebarDesc;
 
-    document.querySelectorAll('.btn-test-text').forEach(el => el.innerText = t.btnTest);
+    // Update info popup texts
+    const infoTitleEl = document.getElementById('info-title');
+    const infoDescEl = document.getElementById('info-desc');
+    const infoLinkEl = document.getElementById('info-link');
+    const infoBtnEl = document.getElementById('info-btn');
+
+    if (infoTitleEl) infoTitleEl.textContent = t.infoTitle;
+    if (infoDescEl) infoDescEl.textContent = t.infoDesc;
+    if (infoLinkEl) infoLinkEl.textContent = t.infoLinkText;
+    if (infoBtnEl) infoBtnEl.title = t.infoBtnTitle;
+
+    document.querySelectorAll('.btn-test-text').forEach(el => el.textContent = t.btnTest);
     document.querySelectorAll('.example-name').forEach(el => {
-        el.innerText = el.getAttribute(`data-${currentLanguage}`);
+        el.textContent = el.getAttribute(`data-${currentLanguage}`);
     });
 
+    const langSv = document.getElementById('lang-sv');
+    const langEn = document.getElementById('lang-en');
+    if (langSv && langEn) {
+        if (currentLanguage === 'sv') {
+            langSv.classList.add('active');
+            langEn.classList.remove('active');
+        } else {
+            langEn.classList.add('active');
+            langSv.classList.remove('active');
+        }
+    }
+
     if (statusEl && uiTranslations[currentLanguage][currentStatusKey]) {
-        statusEl.innerText = uiTranslations[currentLanguage][currentStatusKey];
+        statusEl.textContent = uiTranslations[currentLanguage][currentStatusKey];
     }
 
     document.documentElement.lang = currentLanguage;
 }
 
+/**
+ * Safely loads and processes sample audio files from the audio directory.
+ * @param {string} filePath - Relative path to the sample audio file.
+ */
 async function loadExampleAudio(filePath) {
+    // Security check: validate relative path to prevent arbitrary local path traversal
+    if (!filePath.startsWith('./audio/') && !filePath.startsWith('audio/')) {
+        console.error("Invalid file path supplied.");
+        return;
+    }
+
     const player = audioPlayer || document.getElementById('audio-player');
+    let audioCtx = null;
     
     try {
         setStatus('extracting');
@@ -139,18 +236,18 @@ async function loadExampleAudio(filePath) {
         if (player) {
             player.src = filePath;
             player.style.display = 'block';
-            player.play().catch(e => console.log("Auto-play blockerades:", e));
+            player.play().catch(e => console.log("Auto-play blocked by browser:", e));
         }
 
         const response = await fetch(filePath);
         if (!response.ok) {
-            throw new Error(`Kunde inte hämta filen (${response.status} ${response.statusText})`);
+            throw new Error(`Failed to retrieve file (${response.status} ${response.statusText})`);
         }
 
         const blob = await response.blob();
         const arrayBuffer = await blob.arrayBuffer();
 
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 32000 });
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 32000 });
         const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
 
         const spectrogramTensor = extractMelSpectrogramTensor(audioBuffer);
@@ -160,12 +257,20 @@ async function loadExampleAudio(filePath) {
         
         setStatus('complete');
     } catch (err) {
-        console.error("Fel vid laddning av exempelfil:", err);
-        if (statusEl) statusEl.innerText = `Fel: ${err.message}`;
+        console.error("Error loading sample file:", err);
+        if (statusEl) statusEl.textContent = `Fel: ${err.message}`;
+    } finally {
+        if (audioCtx && audioCtx.state !== 'closed') {
+            await audioCtx.close();
+        }
     }
 }
 
+/**
+ * Initializes model session, species mapping, and bird dictionary.
+ */
 async function init() {
+    initDOM();
     try {
         setStatus('loadingModel');
         
@@ -186,13 +291,16 @@ async function init() {
     } catch (err) {
         console.error("Initialization failed:", err);
         if (statusEl) {
-            statusEl.innerText = `Fel vid laddning: ${err.message}`;
+            statusEl.textContent = `Fel vid laddning: ${err.message}`;
             statusEl.style.borderLeftColor = "#e74c3c";
             statusEl.style.backgroundColor = "#fdf2f2";
         }
     }
 }
 
+/**
+ * Loads CSV dictionary mapping species codes to scientific, English, and Swedish names.
+ */
 async function loadBirdDictionary() {
     try {
         const response = await fetch('./bird_names_dictionary.csv');
@@ -219,10 +327,15 @@ async function loadBirdDictionary() {
             }
         }
     } catch (err) {
-        console.warn("Kunde inte ladda CSV-ordbok:", err);
+        console.warn("Unable to load CSV dictionary:", err);
     }
 }
 
+/**
+ * Formats bird species name based on selected language and scientific name availability.
+ * @param {string} classCode - Internal species class code.
+ * @returns {string} Formatted display name.
+ */
 function getFormattedBirdName(classCode) {
     const info = birdDictionary[classCode];
     if (info) {
@@ -232,9 +345,19 @@ function getFormattedBirdName(classCode) {
     return classCode;
 }
 
+/**
+ * Converts frequency in Hertz to Mel scale.
+ */
 function hzToMel(hz) { return 2595.0 * Math.log10(1.0 + hz / 700.0); }
+
+/**
+ * Converts value in Mel scale back to Hertz.
+ */
 function melToHz(mel) { return 700.0 * (Math.pow(10.0, mel / 2595.0) - 1.0); }
 
+/**
+ * Creates triangular Mel filterbank matrix for audio feature extraction.
+ */
 function createMelFilterbank(numMels, fftSize, sampleRate, fMin = 0, fMax = null) {
     if (!fMax) fMax = sampleRate / 2;
     const numFftBins = Math.floor(fftSize / 2) + 1;
@@ -265,18 +388,34 @@ function createMelFilterbank(numMels, fftSize, sampleRate, fMin = 0, fMax = null
     return filterbank;
 }
 
+/**
+ * Decodes user uploaded audio file to AudioBuffer.
+ * Safely releases Web Audio API context resources upon completion.
+ */
 async function decodeAudioFile(file) {
     const arrayBuffer = await file.arrayBuffer();
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 32000 });
-    return await audioCtx.decodeAudioData(arrayBuffer);
+    try {
+        return await audioCtx.decodeAudioData(arrayBuffer);
+    } finally {
+        if (audioCtx.state !== 'closed') {
+            await audioCtx.close();
+        }
+    }
 }
 
+/**
+ * Extracts normalized Mel-Spectrogram tensor from audio PCM data.
+ * @param {AudioBuffer} audioBuffer - Decoded audio buffer.
+ * @returns {ort.Tensor} ONNX formatted float32 tensor.
+ */
 function extractMelSpectrogramTensor(audioBuffer) {
     const pcmData = audioBuffer.getChannelData(0);
     const sampleRate = audioBuffer.sampleRate;
     const windowSamples = sampleRate * 5;
     let startSample = 0;
 
+    // Find highest energy 5-second segment if file length exceeds 5 seconds
     if (pcmData.length > windowSamples) {
         let maxEnergy = 0;
         let step = Math.floor(sampleRate / 2);
@@ -324,6 +463,7 @@ function extractMelSpectrogramTensor(audioBuffer) {
         }
     }
 
+    // Standardize features (mean=0, std=1)
     let sum = 0;
     for (let i = 0; i < rawSpectrogram.length; i++) sum += rawSpectrogram[i];
     const mean = sum / rawSpectrogram.length;
@@ -343,6 +483,22 @@ function extractMelSpectrogramTensor(audioBuffer) {
     return new ort.Tensor('float32', float32Data, [1, 1, numMels, timeFrames]);
 }
 
+/**
+ * Computes Softmax probabilities over raw model logits.
+ * @param {Array<number>} arr - Array of numerical logits.
+ * @returns {Array<number>} Probability distribution.
+ */
+function softmax(arr) {
+    const maxLogit = Math.max(...arr);
+    const exps = arr.map(value => Math.exp(value - maxLogit));
+    const sumExps = exps.reduce((a, b) => a + b, 0);
+    return exps.map(value => value / sumExps);
+}
+
+/**
+ * Runs ONNX model inference using the input spectrogram tensor.
+ * @param {ort.Tensor} inputTensor - Preprocessed input spectrogram.
+ */
 async function runInference(inputTensor) {
     const feeds = { input_spectrogram: inputTensor };
     const results = await session.run(feeds);
@@ -356,6 +512,12 @@ async function runInference(inputTensor) {
     updateUIWithResults(lastTop5Results);
 }
 
+/**
+ * Maps species identifiers to image assets.
+ * @param {string} classCode - Species class code.
+ * @param {string} formattedName - Display name.
+ * @returns {string} Image path.
+ */
 function getBirdImageSrc(classCode, formattedName) {
     const searchString = `${classCode} ${formattedName}`.toLowerCase();
 
@@ -372,36 +534,43 @@ function getBirdImageSrc(classCode, formattedName) {
     return 'images/fågel.png';
 }
 
+/**
+ * Updates UI elements with top match results and triggers chart rendering.
+ * @param {Array<Object>} top5 - Top 5 probability matches.
+ */
 function updateUIWithResults(top5) {
     const topMatch = top5[0];
     const classCode = classMapping[topMatch.idx];
     const formattedName = getFormattedBirdName(classCode);
     
-    if (topSpeciesEl) topSpeciesEl.innerText = formattedName;
-    if (topConfidenceEl) topConfidenceEl.innerText = `${(topMatch.prob * 100).toFixed(2)}%`;
+    if (topSpeciesEl) topSpeciesEl.textContent = formattedName;
+    if (topConfidenceEl) topConfidenceEl.textContent = `${(topMatch.prob * 100).toFixed(2)}%`;
 
     if (birdImageEl) {
         birdImageEl.src = getBirdImageSrc(classCode, formattedName);
         birdImageEl.alt = formattedName;
     }
 
-    renderChart(top5);
     if (resultsSection) resultsSection.style.display = 'block';
+
+    renderChart(top5);
 }
 
-function softmax(logits) {
-    const maxLogit = Math.max(...logits);
-    const exps = logits.map(l => Math.exp(l - maxLogit));
-    const sumExps = exps.reduce((a, b) => a + b, 0);
-    return exps.map(e => e / sumExps);
-}
-
+/**
+ * Renders probability visualization bar chart using Chart.js.
+ * @param {Array<Object>} top5 - Top 5 classification results.
+ */
 function renderChart(top5) {
+    const chartCanvas = document.getElementById('confidence-chart');
+    if (!chartCanvas) return;
+
+    const ctx = chartCanvas.getContext('2d');
     const labels = top5.map(item => getFormattedBirdName(classMapping[item.idx]));
     const data = top5.map(item => (item.prob * 100).toFixed(2));
 
-    const ctx = document.getElementById('confidence-chart').getContext('2d');
-    if (chartInstance) chartInstance.destroy();
+    if (chartInstance) {
+        chartInstance.destroy();
+    }
 
     chartInstance = new Chart(ctx, {
         type: 'bar',
@@ -410,21 +579,24 @@ function renderChart(top5) {
             datasets: [{
                 label: uiTranslations[currentLanguage].chartLabel,
                 data: data,
-                backgroundColor: ['#3498db', '#2ecc71', '#9b59b6', '-f1c40f', '#e67e22']
+                backgroundColor: 'rgba(44, 94, 59, 0.7)',
+                borderColor: 'rgba(44, 94, 59, 1)',
+                borderWidth: 1
             }]
         },
         options: {
+            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                y: { beginAtZero: true, max: 100 }
+                x: {
+                    beginAtZero: true,
+                    max: 100
+                }
             }
         }
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    initDOM();
-    updateStaticText();
-    init();
-});
+// Attach DOMContentLoaded event listener to start application initialization
+window.addEventListener('DOMContentLoaded', init);
