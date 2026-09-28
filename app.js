@@ -1,10 +1,48 @@
 let session = null;
 let classMapping = {};
-let birdDictionary = {}; // Rymmer översättningarna från CSV
-let currentLanguage = 'sv'; // Standard: svenska ('sv' eller 'en')
+let birdDictionary = {}; // Stores translations parsed from CSV
+let currentLanguage = 'sv'; // Default language: 'sv' or 'en'
 let chartInstance = null;
 let lastTop5Results = null;
+let currentStatusKey = 'loadingModel'; // Tracks current status text for language toggle
 
+// UI Translations dictionary for static interface elements
+const uiTranslations = {
+    sv: {
+        langBtn: "Språk: Svenska",
+        appTitle: "🦅 Fågelartklassificerare",
+        appSubtitle: "Ladda upp en ljudfil (.wav eller .mp3) för att identifiera fågelarten direkt i din webbläsare.",
+        lblTopMatch: "Bästa matchning:",
+        lblConfidence: "Sannolikhet:",
+        chartLabel: "Sannolikhet (%)",
+        // Dynamic status messages
+        loadingModel: "Laddar AI-modell...",
+        loadingMapping: "Laddar artmappning...",
+        loadingDict: "Laddar fågelordbok...",
+        ready: "Klar! Ladda upp en ljudfil för att klassificera.",
+        extracting: "Extraherar Mel-spektrogram...",
+        runningInference: "Kör AI-modell...",
+        complete: "Klassificering klar!"
+    },
+    en: {
+        langBtn: "Language: English",
+        appTitle: "🦅 Bird Species Classifier",
+        appSubtitle: "Upload an audio file (.wav or .mp3) to identify the bird species directly in your browser.",
+        lblTopMatch: "Top Match:",
+        lblConfidence: "Confidence:",
+        chartLabel: "Confidence (%)",
+        // Dynamic status messages
+        loadingModel: "Loading AI model...",
+        loadingMapping: "Loading species class mapping...",
+        loadingDict: "Loading bird names dictionary...",
+        ready: "Ready! Upload an audio file to classify.",
+        extracting: "Extracting Mel-Spectrogram...",
+        runningInference: "Running ONNX model inference...",
+        complete: "Classification complete!"
+    }
+};
+
+// DOM Elements
 const statusEl = document.getElementById('status');
 const audioInput = document.getElementById('audio-input');
 const audioPlayer = document.getElementById('audio-player');
@@ -12,12 +50,24 @@ const resultsSection = document.getElementById('results');
 const topSpeciesEl = document.getElementById('top-species');
 const topConfidenceEl = document.getElementById('top-confidence');
 const langToggleBtn = document.getElementById('lang-toggle-btn');
+const appTitleEl = document.getElementById('app-title');
+const appSubtitleEl = document.getElementById('app-subtitle');
+const lblTopMatchEl = document.getElementById('lbl-top-match');
+const lblConfidenceEl = document.getElementById('lbl-confidence');
 
-// Koppla knappen för språkbyte
+// Helper function to update status text with language support
+function setStatus(statusKey) {
+    currentStatusKey = statusKey;
+    if (statusEl) {
+        statusEl.innerText = uiTranslations[currentLanguage][statusKey] || statusKey;
+    }
+}
+
+// Language toggle button listener
 if (langToggleBtn) {
     langToggleBtn.addEventListener('click', () => {
         currentLanguage = currentLanguage === 'sv' ? 'en' : 'sv';
-        langToggleBtn.innerText = currentLanguage === 'sv' ? 'Språk: Svenska' : 'Language: English';
+        updateStaticText();
         
         if (lastTop5Results) {
             updateUIWithResults(lastTop5Results);
@@ -25,34 +75,55 @@ if (langToggleBtn) {
     });
 }
 
+// Updates all static text elements on the page based on the current language
+function updateStaticText() {
+    const t = uiTranslations[currentLanguage];
+    
+    if (langToggleBtn) langToggleBtn.innerText = t.langBtn;
+    if (appTitleEl) appTitleEl.innerText = t.appTitle;
+    if (appSubtitleEl) appSubtitleEl.innerText = t.appSubtitle;
+    if (lblTopMatchEl) lblTopMatchEl.innerText = t.lblTopMatch;
+    if (lblConfidenceEl) lblConfidenceEl.innerText = t.lblConfidence;
+    
+    // Refresh status element if it holds a recognized key
+    if (statusEl && uiTranslations[currentLanguage][currentStatusKey]) {
+        statusEl.innerText = uiTranslations[currentLanguage][currentStatusKey];
+    }
+
+    // Update html lang attribute
+    document.documentElement.lang = currentLanguage;
+}
+
 // 1. Initialize ONNX Runtime Session, Fetch Class Mappings & CSV Dictionary
 async function init() {
     try {
-        statusEl.innerText = "Loading ONNX model...";
+        setStatus('loadingModel');
         
         ort.env.wasm.numThreads = 2;
         session = await ort.InferenceSession.create('./models/bird_classifier_efficientnet.onnx', {
             executionProviders: ['webgl', 'wasm']
         });
 
-        statusEl.innerText = "Loading species class mapping...";
+        setStatus('loadingMapping');
         const response = await fetch('./models/species_class_mapping.json');
         classMapping = await response.json();
 
-        statusEl.innerText = "Loading bird names dictionary...";
+        setStatus('loadingDict');
         await loadBirdDictionary();
 
-        statusEl.innerText = "Ready! Upload an audio file to classify.";
+        setStatus('ready');
         audioInput.disabled = false;
     } catch (err) {
         console.error("Initialization failed:", err);
-        statusEl.innerText = `Error loading model/mapping: ${err.message}`;
-        statusEl.style.borderLeftColor = "#e74c3c";
-        statusEl.style.backgroundColor = "#fdf2f2";
+        if (statusEl) {
+            statusEl.innerText = `Error loading model/mapping: ${err.message}`;
+            statusEl.style.borderLeftColor = "#e74c3c";
+            statusEl.style.backgroundColor = "#fdf2f2";
+        }
     }
 }
 
-// Läser in och parsar CSV-filen
+// Reads and parses the CSV bird dictionary
 async function loadBirdDictionary() {
     try {
         const response = await fetch('./bird_names_dictionary.csv');
@@ -63,7 +134,8 @@ async function loadBirdDictionary() {
             const line = lines[i].trim();
             if (!line) continue;
 
-            const columns = line.split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/).map(col => col.replace(/^"\vert{}"$/g, '').trim());
+            // Simple split by comma, cleaning up surrounding quotes
+            const columns = line.split(',').map(col => col.replace(/^"|"$/g, '').trim());
             
             if (columns.length >= 4) {
                 const label = columns[0];
@@ -78,23 +150,18 @@ async function loadBirdDictionary() {
                 };
             }
         }
-        console.log("Fågelordbok inläst:", Object.keys(birdDictionary).length, "arter.");
+        console.log("Bird dictionary loaded:", Object.keys(birdDictionary).length, "species.");
     } catch (err) {
-        console.warn("Kunde inte ladda CSV-ordboken:", err);
+        console.warn("Failed to load CSV dictionary:", err);
     }
 }
 
-// Hjälpfunktion för att hämta namn baserat på sprak
+// Helper function to get bird name according to the selected language
 function getFormattedBirdName(classCode) {
     const info = birdDictionary[classCode];
     if (info) {
         const primaryName = currentLanguage === 'sv' ? info.sv : info.en;
         return info.latin ? `${primaryName} (${info.latin})` : primaryName;
-    }
-    
-    // Inbyggd fallback för vanliga koder om de skulle saknas i CSV
-    if (classCode === 'eurbul' || classCode === 'eurbul1') {
-        return currentLanguage === 'sv' ? 'Domherre (Pyrrhula pyrrhula)' : 'Eurasian Bullfinch (Pyrrhula pyrrhula)';
     }
     
     return classCode;
@@ -153,16 +220,16 @@ audioInput.addEventListener('change', async (e) => {
     audioPlayer.src = URL.createObjectURL(file);
     audioPlayer.style.display = 'block';
 
-    statusEl.innerText = "Extracting Mel-Spectrogram...";
+    setStatus('extracting');
 
     try {
         const audioBuffer = await decodeAudioFile(file);
         const spectrogramTensor = extractMelSpectrogramTensor(audioBuffer);
         
-        statusEl.innerText = "Running ONNX model inference...";
+        setStatus('runningInference');
         await runInference(spectrogramTensor);
         
-        statusEl.innerText = "Classification complete!";
+        setStatus('complete');
     } catch (err) {
         console.error("Processing failed:", err);
         statusEl.innerText = `Error processing audio: ${err.message}`;
@@ -301,7 +368,7 @@ function renderChart(top5) {
         data: {
             labels: labels,
             datasets: [{
-                label: currentLanguage === 'sv' ? 'Sannolikhet (%)' : 'Confidence (%)',
+                label: uiTranslations[currentLanguage].chartLabel,
                 data: data,
                 backgroundColor: ['#3498db', '#2ecc71', '#9b59b6', '#f1c40f', '#e67e22']
             }]
@@ -316,4 +383,6 @@ function renderChart(top5) {
     });
 }
 
+// Körs när skriptet laddar
+updateStaticText();
 init();

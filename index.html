@@ -14,14 +14,14 @@
 </head>
 <body>
     <div class="container">
-        <button id="lang-toggle-btn" class="lang-btn"></button>
+        <button id="lang-toggle-btn" class="lang-btn">Språk: Svenska</button>
         <header>
-            <h1 id="app-title"></h1>
-            <p id="app-subtitle"></p>
+            <h1 id="app-title">🦅 Fågelartklassificerare</h1>
+            <p id="app-subtitle">Ladda upp en ljudfil (.wav eller .mp3) för att identifiera fågelarten direkt i din webbläsare.</p>
         </header>
 
         <main>
-            <div id="status" class="status-box"></div>
+            <div id="status" class="status-box">Laddar AI-modell...</div>
 
             <section class="upload-section">
                 <input type="file" id="audio-input" accept="audio/*" disabled>
@@ -29,8 +29,8 @@
             </section>
 
             <section id="results" class="results-section" style="display: none;">
-                <h2><span id="lbl-top-match"></span> <span id="top-species">---</span></h2>
-                <p><span id="lbl-confidence"></span> <strong id="top-confidence">0%</strong></p>
+                <h2><span id="lbl-top-match">Bästa matchning:</span> <span id="top-species">---</span></h2>
+                <p><span id="lbl-confidence">Sannolikhet:</span> <strong id="top-confidence">0%</strong></p>
                 
                 <div class="chart-container">
                     <canvas id="confidence-chart"></canvas>
