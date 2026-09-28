@@ -1,12 +1,11 @@
 let session = null;
 let classMapping = {};
-let birdDictionary = {}; // Stores translations parsed from CSV
-let currentLanguage = 'sv'; // Default language: 'sv' or 'en'
+let birdDictionary = {};
+let currentLanguage = 'sv'; // 'sv' eller 'en'
 let chartInstance = null;
 let lastTop5Results = null;
-let currentStatusKey = 'loadingModel'; // Tracks current status text for language toggle
+let currentStatusKey = 'loadingModel';
 
-// UI Translations dictionary for static interface elements
 const uiTranslations = {
     sv: {
         langBtn: "Språk: Svenska",
@@ -15,7 +14,6 @@ const uiTranslations = {
         lblTopMatch: "Bästa matchning:",
         lblConfidence: "Sannolikhet:",
         chartLabel: "Sannolikhet (%)",
-        // Dynamic status messages
         loadingModel: "Laddar AI-modell...",
         loadingMapping: "Laddar artmappning...",
         loadingDict: "Laddar fågelordbok...",
@@ -31,31 +29,67 @@ const uiTranslations = {
         lblTopMatch: "Top Match:",
         lblConfidence: "Confidence:",
         chartLabel: "Confidence (%)",
-        // Dynamic status messages
         loadingModel: "Loading AI model...",
         loadingMapping: "Loading species class mapping...",
         loadingDict: "Loading bird names dictionary...",
         ready: "Ready! Upload an audio file to classify.",
         extracting: "Extracting Mel-Spectrogram...",
-        runningInference: "Running ONNX model inference...",
+        runningInference: "Running AI model...",
         complete: "Classification complete!"
     }
 };
 
-// DOM Elements
-const statusEl = document.getElementById('status');
-const audioInput = document.getElementById('audio-input');
-const audioPlayer = document.getElementById('audio-player');
-const resultsSection = document.getElementById('results');
-const topSpeciesEl = document.getElementById('top-species');
-const topConfidenceEl = document.getElementById('top-confidence');
-const langToggleBtn = document.getElementById('lang-toggle-btn');
-const appTitleEl = document.getElementById('app-title');
-const appSubtitleEl = document.getElementById('app-subtitle');
-const lblTopMatchEl = document.getElementById('lbl-top-match');
-const lblConfidenceEl = document.getElementById('lbl-confidence');
+let statusEl, audioInput, audioPlayer, resultsSection, topSpeciesEl, topConfidenceEl, langToggleBtn, appTitleEl, appSubtitleEl, lblTopMatchEl, lblConfidenceEl;
 
-// Helper function to update status text with language support
+function initDOM() {
+    statusEl = document.getElementById('status');
+    audioInput = document.getElementById('audio-input');
+    audioPlayer = document.getElementById('audio-player');
+    resultsSection = document.getElementById('results');
+    topSpeciesEl = document.getElementById('top-species');
+    topConfidenceEl = document.getElementById('top-confidence');
+    langToggleBtn = document.getElementById('lang-toggle-btn');
+    appTitleEl = document.getElementById('app-title');
+    appSubtitleEl = document.getElementById('app-subtitle');
+    lblTopMatchEl = document.getElementById('lbl-top-match');
+    lblConfidenceEl = document.getElementById('lbl-confidence');
+
+    if (langToggleBtn) {
+        langToggleBtn.addEventListener('click', () => {
+            currentLanguage = currentLanguage === 'sv' ? 'en' : 'sv';
+            updateStaticText();
+            if (lastTop5Results) {
+                updateUIWithResults(lastTop5Results);
+            }
+        });
+    }
+
+    if (audioInput) {
+        audioInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            audioPlayer.src = URL.createObjectURL(file);
+            audioPlayer.style.display = 'block';
+
+            setStatus('extracting');
+
+            try {
+                const audioBuffer = await decodeAudioFile(file);
+                const spectrogramTensor = extractMelSpectrogramTensor(audioBuffer);
+                
+                setStatus('runningInference');
+                await runInference(spectrogramTensor);
+                
+                setStatus('complete');
+            } catch (err) {
+                console.error("Processing failed:", err);
+                if (statusEl) statusEl.innerText = `Fel vid ljudbearbetning: ${err.message}`;
+            }
+        });
+    }
+}
+
 function setStatus(statusKey) {
     currentStatusKey = statusKey;
     if (statusEl) {
@@ -63,19 +97,6 @@ function setStatus(statusKey) {
     }
 }
 
-// Language toggle button listener
-if (langToggleBtn) {
-    langToggleBtn.addEventListener('click', () => {
-        currentLanguage = currentLanguage === 'sv' ? 'en' : 'sv';
-        updateStaticText();
-        
-        if (lastTop5Results) {
-            updateUIWithResults(lastTop5Results);
-        }
-    });
-}
-
-// Updates all static text elements on the page based on the current language
 function updateStaticText() {
     const t = uiTranslations[currentLanguage];
     
@@ -85,16 +106,13 @@ function updateStaticText() {
     if (lblTopMatchEl) lblTopMatchEl.innerText = t.lblTopMatch;
     if (lblConfidenceEl) lblConfidenceEl.innerText = t.lblConfidence;
     
-    // Refresh status element if it holds a recognized key
     if (statusEl && uiTranslations[currentLanguage][currentStatusKey]) {
         statusEl.innerText = uiTranslations[currentLanguage][currentStatusKey];
     }
 
-    // Update html lang attribute
     document.documentElement.lang = currentLanguage;
 }
 
-// 1. Initialize ONNX Runtime Session, Fetch Class Mappings & CSV Dictionary
 async function init() {
     try {
         setStatus('loadingModel');
@@ -112,18 +130,17 @@ async function init() {
         await loadBirdDictionary();
 
         setStatus('ready');
-        audioInput.disabled = false;
+        if (audioInput) audioInput.disabled = false;
     } catch (err) {
         console.error("Initialization failed:", err);
         if (statusEl) {
-            statusEl.innerText = `Error loading model/mapping: ${err.message}`;
+            statusEl.innerText = `Fel vid laddning: ${err.message}`;
             statusEl.style.borderLeftColor = "#e74c3c";
             statusEl.style.backgroundColor = "#fdf2f2";
         }
     }
 }
 
-// Reads and parses the CSV bird dictionary
 async function loadBirdDictionary() {
     try {
         const response = await fetch('./bird_names_dictionary.csv');
@@ -134,7 +151,6 @@ async function loadBirdDictionary() {
             const line = lines[i].trim();
             if (!line) continue;
 
-            // Simple split by comma, cleaning up surrounding quotes
             const columns = line.split(',').map(col => col.replace(/^"|"$/g, '').trim());
             
             if (columns.length >= 4) {
@@ -150,36 +166,26 @@ async function loadBirdDictionary() {
                 };
             }
         }
-        console.log("Bird dictionary loaded:", Object.keys(birdDictionary).length, "species.");
     } catch (err) {
-        console.warn("Failed to load CSV dictionary:", err);
+        console.warn("Kunde inte ladda CSV-ordbok:", err);
     }
 }
 
-// Helper function to get bird name according to the selected language
 function getFormattedBirdName(classCode) {
     const info = birdDictionary[classCode];
     if (info) {
         const primaryName = currentLanguage === 'sv' ? info.sv : info.en;
         return info.latin ? `${primaryName} (${info.latin})` : primaryName;
     }
-    
     return classCode;
 }
 
-// 2. Helper Functions for Mel Filterbank Calculation
-function hzToMel(hz) {
-    return 2595.0 * Math.log10(1.0 + hz / 700.0);
-}
-
-function melToHz(mel) {
-    return 700.0 * (Math.pow(10.0, mel / 2595.0) - 1.0);
-}
+function hzToMel(hz) { return 2595.0 * Math.log10(1.0 + hz / 700.0); }
+function melToHz(mel) { return 700.0 * (Math.pow(10.0, mel / 2595.0) - 1.0); }
 
 function createMelFilterbank(numMels, fftSize, sampleRate, fMin = 0, fMax = null) {
     if (!fMax) fMax = sampleRate / 2;
     const numFftBins = Math.floor(fftSize / 2) + 1;
-    
     const minMel = hzToMel(fMin);
     const maxMel = hzToMel(fMax);
     
@@ -190,7 +196,6 @@ function createMelFilterbank(numMels, fftSize, sampleRate, fMin = 0, fMax = null
     
     const hzPoints = melPoints.map(melToHz);
     const binPoints = hzPoints.map(hz => Math.floor(((fftSize + 1) * hz) / sampleRate));
-    
     const filterbank = Array.from({ length: numMels }, () => new Float32Array(numFftBins));
     
     for (let m = 1; m <= numMels; m++) {
@@ -199,42 +204,14 @@ function createMelFilterbank(numMels, fftSize, sampleRate, fMin = 0, fMax = null
         const fNext = binPoints[m + 1];
         
         for (let k = fPrev; k < fCurr; k++) {
-            if (k < numFftBins) {
-                filterbank[m - 1][k] = (k - fPrev) / (fCurr - fPrev || 1);
-            }
+            if (k < numFftBins) filterbank[m - 1][k] = (k - fPrev) / (fCurr - fPrev || 1);
         }
         for (let k = fCurr; k < fNext; k++) {
-            if (k < numFftBins) {
-                filterbank[m - 1][k] = (fNext - k) / (fNext - fCurr || 1);
-            }
+            if (k < numFftBins) filterbank[m - 1][k] = (fNext - k) / (fNext - fCurr || 1);
         }
     }
     return filterbank;
 }
-
-// 3. Audio File Upload Listener
-audioInput.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    audioPlayer.src = URL.createObjectURL(file);
-    audioPlayer.style.display = 'block';
-
-    setStatus('extracting');
-
-    try {
-        const audioBuffer = await decodeAudioFile(file);
-        const spectrogramTensor = extractMelSpectrogramTensor(audioBuffer);
-        
-        setStatus('runningInference');
-        await runInference(spectrogramTensor);
-        
-        setStatus('complete');
-    } catch (err) {
-        console.error("Processing failed:", err);
-        statusEl.innerText = `Error processing audio: ${err.message}`;
-    }
-});
 
 async function decodeAudioFile(file) {
     const arrayBuffer = await file.arrayBuffer();
@@ -245,7 +222,6 @@ async function decodeAudioFile(file) {
 function extractMelSpectrogramTensor(audioBuffer) {
     const pcmData = audioBuffer.getChannelData(0);
     const sampleRate = audioBuffer.sampleRate;
-    
     const windowSamples = sampleRate * 5;
     let startSample = 0;
 
@@ -265,7 +241,6 @@ function extractMelSpectrogramTensor(audioBuffer) {
     }
 
     const segment = pcmData.slice(startSample, startSample + windowSamples);
-
     const fftSize = 1024;
     const timeFrames = 313;
     const numMels = 128;
@@ -284,7 +259,6 @@ function extractMelSpectrogramTensor(audioBuffer) {
         
         if (frameBuffer.length === fftSize) {
             const powerSpec = Meyda.extract('powerSpectrum', frameBuffer);
-            
             if (powerSpec) {
                 for (let mel = 0; mel < numMels; mel++) {
                     let melEnergy = 0.0;
@@ -299,9 +273,7 @@ function extractMelSpectrogramTensor(audioBuffer) {
     }
 
     let sum = 0;
-    for (let i = 0; i < rawSpectrogram.length; i++) {
-        sum += rawSpectrogram[i];
-    }
+    for (let i = 0; i < rawSpectrogram.length; i++) sum += rawSpectrogram[i];
     const mean = sum / rawSpectrogram.length;
 
     let squareSum = 0;
@@ -319,14 +291,12 @@ function extractMelSpectrogramTensor(audioBuffer) {
     return new ort.Tensor('float32', float32Data, [1, 1, numMels, timeFrames]);
 }
 
-// 4. Run Model Inference & Render Results
 async function runInference(inputTensor) {
     const feeds = { input_spectrogram: inputTensor };
     const results = await session.run(feeds);
     const logits = results.species_logits.data;
 
     const probabilities = softmax(Array.from(logits));
-
     const indexedProbs = probabilities.map((prob, idx) => ({ prob, idx }));
     indexedProbs.sort((a, b) => b.prob - a.prob);
     
@@ -338,11 +308,11 @@ function updateUIWithResults(top5) {
     const topMatch = top5[0];
     const classCode = classMapping[topMatch.idx];
     
-    topSpeciesEl.innerText = getFormattedBirdName(classCode);
-    topConfidenceEl.innerText = `${(topMatch.prob * 100).toFixed(2)}%`;
+    if (topSpeciesEl) topSpeciesEl.innerText = getFormattedBirdName(classCode);
+    if (topConfidenceEl) topConfidenceEl.innerText = `${(topMatch.prob * 100).toFixed(2)}%`;
 
     renderChart(top5);
-    resultsSection.style.display = 'block';
+    if (resultsSection) resultsSection.style.display = 'block';
 }
 
 function softmax(logits) {
@@ -353,11 +323,7 @@ function softmax(logits) {
 }
 
 function renderChart(top5) {
-    const labels = top5.map(item => {
-        const classCode = classMapping[item.idx];
-        return getFormattedBirdName(classCode);
-    });
-    
+    const labels = top5.map(item => getFormattedBirdName(classMapping[item.idx]));
     const data = top5.map(item => (item.prob * 100).toFixed(2));
 
     const ctx = document.getElementById('confidence-chart').getContext('2d');
@@ -383,6 +349,8 @@ function renderChart(top5) {
     });
 }
 
-// Körs när skriptet laddar
-updateStaticText();
-init();
+document.addEventListener('DOMContentLoaded', () => {
+    initDOM();
+    updateStaticText();
+    init();
+});
