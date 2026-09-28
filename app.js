@@ -6,6 +6,14 @@ let chartInstance = null;
 let lastTop5Results = null;
 let currentStatusKey = 'loadingModel';
 
+// Mappning för specifika bilder baserat på artkoder i din modell
+const birdImages = {
+    'skat': 'images/skata.jpg',
+    'graspa': 'images/gråsparv.jpg',
+    'domher': 'images/domherre.jpg'
+};
+const defaultBirdImage = 'images/fågel.png';
+
 const uiTranslations = {
     sv: {
         langBtn: "Språk: Svenska",
@@ -45,7 +53,7 @@ const uiTranslations = {
     }
 };
 
-let statusEl, audioInput, audioPlayer, resultsSection, topSpeciesEl, topConfidenceEl, langToggleBtn, appTitleEl, appSubtitleEl, lblTopMatchEl, lblConfidenceEl;
+let statusEl, audioInput, audioPlayer, resultsSection, topSpeciesEl, topConfidenceEl, langToggleBtn, appTitleEl, appSubtitleEl, lblTopMatchEl, lblConfidenceEl, birdImageEl;
 
 function initDOM() {
     statusEl = document.getElementById('status');
@@ -59,6 +67,7 @@ function initDOM() {
     appSubtitleEl = document.getElementById('app-subtitle');
     lblTopMatchEl = document.getElementById('lbl-top-match');
     lblConfidenceEl = document.getElementById('lbl-confidence');
+    birdImageEl = document.getElementById('bird-image');
 
     if (langToggleBtn) {
         langToggleBtn.addEventListener('click', () => {
@@ -112,7 +121,6 @@ function updateStaticText() {
     if (lblTopMatchEl) lblTopMatchEl.innerText = t.lblTopMatch;
     if (lblConfidenceEl) lblConfidenceEl.innerText = t.lblConfidence;
     
-    // Sidpanelens översättning (Rubrik, Beskrivning & Knappar)
     const sidebarTitleEl = document.getElementById('sidebar-title');
     const sidebarDescEl = document.getElementById('sidebar-desc');
     if (sidebarTitleEl) sidebarTitleEl.innerText = t.sidebarTitle;
@@ -130,7 +138,6 @@ function updateStaticText() {
     document.documentElement.lang = currentLanguage;
 }
 
-// Kör exempelljud direkt vid klick på "Testa"
 async function loadExampleAudio(filePath) {
     const player = audioPlayer || document.getElementById('audio-player');
     
@@ -360,9 +367,16 @@ async function runInference(inputTensor) {
 function updateUIWithResults(top5) {
     const topMatch = top5[0];
     const classCode = classMapping[topMatch.idx];
+    const formattedName = getFormattedBirdName(classCode);
     
-    if (topSpeciesEl) topSpeciesEl.innerText = getFormattedBirdName(classCode);
+    if (topSpeciesEl) topSpeciesEl.innerText = formattedName;
     if (topConfidenceEl) topConfidenceEl.innerText = `${(topMatch.prob * 100).toFixed(2)}%`;
+
+    // Sätt bildkälla baserat på artkod, annars använd standardbilden
+    if (birdImageEl) {
+        birdImageEl.src = birdImages[classCode] || defaultBirdImage;
+        birdImageEl.alt = formattedName;
+    }
 
     renderChart(top5);
     if (resultsSection) resultsSection.style.display = 'block';
