@@ -25,7 +25,7 @@ const uiTranslations = {
         sidebarTitle: "Exempelljud",
         sidebarDesc: "Ladda ner eller testa ett exempelljud direkt för att utvärdera modellen utan att behöva ladda upp egna filer.",
         btnTest: "Testa",
-        artfaktaText: 'Testa att ladda upp ett eget inspelat svenskt fågelljud eller ladda ner ljud från <a href="https://artfakta.se/sok" target="_blank" rel="noopener noreferrer" style="color: #3498db; text-decoration: underline;">SLU Artbanken</a>. för att testa den ljudbaserade AI modellen ',
+        artfaktaText: 'Testa att ladda upp ett eget inspelat svenskt fågelljud eller ladda ner ljud från <a href="https://artfakta.se/sok" target="_blank" rel="noopener noreferrer" style="color: #3498db; text-decoration: underline;">SLU Artbanken</a> för att testa den ljudbaserade AI modellen ',
         loadingModel: "Laddar AI-modell...",
         loadingMapping: "Laddar artmappning...",
         loadingDict: "Laddar fågelordbok...",
@@ -34,8 +34,9 @@ const uiTranslations = {
         runningInference: "Kör AI-modell...",
         complete: "Klassificering klar!",
         infoTitle: "Om projektet",
-        infoDesc: "Denna app är en webbläsarbaserad AI-klassificerare för fågelläten som körs helt lokalt via ONNX Runtime Web och EfficientNet.",
-        infoLinkText: "📖 Läs bygguiden & arkitekturen",
+        infoDesc: "Denna app är en webbläsarbaserad AI-klassificerare för fågelläten som körs helt lokalt via ONNX Runtime Web och EfficientNet. Hemsidan och modellen är byggda av Lukas Bleichner som ett fritidsprojekt.",
+        infoLink1Text: "Läs byggguiden för denna AI på Kaggle",
+        infoLink2Text: "Läs byggguiden för hemsidan på GitHub",
         infoBtnTitle: "Information om projektet",
         modelWarning: "⚠️ Observera: Bilar, andra höga bakgrundsljud eller fågelsång från andra arter i ljudfilen kan påverka analysen och leda till att modellen lyssnar efter fel ljud."
     },
@@ -49,7 +50,7 @@ const uiTranslations = {
         sidebarTitle: "Sample Sounds",
         sidebarDesc: "Download or test a sample sound directly to evaluate the model without needing to upload your own files.",
         btnTest: "Test",
-        artfaktaText: 'Try uploading your own recorded Swedish bird sound or download audio from <a href="https://artfakta.se/sok" target="_blank" rel="noopener noreferrer" style="color: #3498db; text-decoration: underline;">SLU Species Database</a>. to test the audio-based AI model',
+        artfaktaText: 'Try uploading your own recorded Swedish bird sound or download audio from <a href="https://artfakta.se/sok" target="_blank" rel="noopener noreferrer" style="color: #3498db; text-decoration: underline;">SLU Species Database</a> to test the audio-based AI model',
         loadingModel: "Loading AI model...",
         loadingMapping: "Loading species class mapping...",
         loadingDict: "Loading bird names dictionary...",
@@ -58,8 +59,9 @@ const uiTranslations = {
         runningInference: "Running AI model...",
         complete: "Classification complete!",
         infoTitle: "About the Project",
-        infoDesc: "This app is a browser-based AI classifier for bird calls running entirely locally via ONNX Runtime Web and EfficientNet.",
-        infoLinkText: "📖 Read the build guide & architecture",
+        infoDesc: "This app is a browser-based AI classifier for bird calls running entirely locally via ONNX Runtime Web and EfficientNet. The website and model are built by Lukas Bleichner as a hobby project.",
+        infoLink1Text: "Read the build guide for the AI model on Kaggle",
+        infoLink2Text: "Read the build guide for the website on GitHub",
         infoBtnTitle: "Information about the project",
         modelWarning: "⚠️ Note: Cars, other loud background noises, or bird songs from other species in the audio file may affect the analysis and cause the model to listen for the wrong sounds."
     }
@@ -184,12 +186,14 @@ function updateStaticText() {
 
     const infoTitleEl = document.getElementById('info-title');
     const infoDescEl = document.getElementById('info-desc');
-    const infoLinkEl = document.getElementById('info-link');
+    const infoLink1El = document.getElementById('info-link1'); // Ändrad till info-link1
+    const infoLink2El = document.getElementById('info-link2'); // Tillagd för info-link2
     const infoBtnEl = document.getElementById('info-btn');
 
     if (infoTitleEl) infoTitleEl.textContent = t.infoTitle;
     if (infoDescEl) infoDescEl.textContent = t.infoDesc;
-    if (infoLinkEl) infoLinkEl.textContent = t.infoLinkText;
+    if (infoLink1El) infoLink1El.textContent = t.infoLink1Text; // Kopplar mot infoLink1Text
+    if (infoLink2El) infoLink2El.textContent = t.infoLink2Text; // Kopplar mot infoLink2Text
     if (infoBtnEl) infoBtnEl.title = t.infoBtnTitle;
 
     document.querySelectorAll('.btn-test-text').forEach(el => el.textContent = t.btnTest);
