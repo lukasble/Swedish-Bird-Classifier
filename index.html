@@ -5,38 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bird Species Classifier</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- ONNX Runtime Web CDN -->
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
-    <!-- Meyda Audio Feature Extraction for STFT / Spectrogram -->
     <script src="https://unpkg.com/meyda/dist/web/meyda.min.js"></script>
-    <!-- Chart.js for visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="container">
-        <button id="lang-toggle-btn" class="lang-btn">Språk: Svenska</button>
-        <header>
-            <h1 id="app-title">🦅 Fågelartklassificerare</h1>
-            <p id="app-subtitle">Ladda upp en ljudfil (.wav eller .mp3) för att identifiera fågelarten direkt i din webbläsare.</p>
-        </header>
+    <div class="layout-wrapper">
+        <!-- VÄNSTERPANEL: Exempelljud -->
+        <aside class="sidebar-card">
+            <h3 id="sidebar-title">🎧 Exempelljud</h3>
+            <p id="sidebar-desc">Ladda ner eller testa ett exempelljud direkt:</p>
+            
+            <ul class="example-list">
+                <li class="example-item">
+                    <span class="example-name" data-sv="Skata" data-en="Eurasian Magpie">Skata</span>
+                    <div class="example-actions">
+                        <button class="btn-test" onclick="loadExampleAudio('samples/skata-magpie.mp3')">⚡ <span class="btn-test-text">Testa</span></button>
+                        <a href="samples/skata-magpie.mp3" download class="btn-download" title="Ladda ner">💾</a>
+                    </div>
+                </li>
+                <li class="example-item">
+                    <span class="example-name" data-sv="Gråsparv" data-en="House Sparrow">Gråsparv</span>
+                    <div class="example-actions">
+                        <button class="btn-test" onclick="loadExampleAudio('samples/gråsparv-housesparrow.mp3')">⚡ <span class="btn-test-text">Testa</span></button>
+                        <a href="samples/gråsparv-housesparrow.mp3" download class="btn-download" title="Ladda ner">💾</a>
+                    </div>
+                </li>
+                <li class="example-item">
+                    <span class="example-name" data-sv="Domherre" data-en="Eurasian Bullfinch">Domherre</span>
+                    <div class="example-actions">
+                        <button class="btn-test" onclick="loadExampleAudio('samples/domherre-bullfinch.mp3')">⚡ <span class="btn-test-text">Testa</span></button>
+                        <a href="samples/domherre-bullfinch.mp3" download class="btn-download" title="Ladda ner">💾</a>
+                    </div>
+                </li>
+            </ul>
+        </aside>
 
-        <main>
-            <div id="status" class="status-box">Laddar AI-modell...</div>
+        <!-- HÖGER/MITTKORT: Huvudappen -->
+        <div class="container">
+            <button id="lang-toggle-btn" class="lang-btn">Språk: Svenska</button>
+            <header>
+                <h1 id="app-title">🦅 Fågelartklassificerare</h1>
+                <p id="app-subtitle">Ladda upp en ljudfil (.wav eller .mp3) för att identifiera fågelarten direkt i din webbläsare.</p>
+            </header>
 
-            <section class="upload-section">
-                <input type="file" id="audio-input" accept="audio/*" disabled>
-                <audio id="audio-player" controls style="display: none;"></audio>
-            </section>
+            <main>
+                <div id="status" class="status-box">Laddar AI-modell...</div>
 
-            <section id="results" class="results-section" style="display: none;">
-                <h2><span id="lbl-top-match">Bästa matchning:</span> <span id="top-species">---</span></h2>
-                <p><span id="lbl-confidence">Sannolikhet:</span> <strong id="top-confidence">0%</strong></p>
-                
-                <div class="chart-container">
-                    <canvas id="confidence-chart"></canvas>
-                </div>
-            </section>
-        </main>
+                <section class="upload-section">
+                    <input type="file" id="audio-input" accept="audio/*" disabled>
+                    <audio id="audio-player" controls style="display: none;"></audio>
+                </section>
+
+                <section id="results" class="results-section" style="display: none;">
+                    <h2><span id="lbl-top-match">Bästa matchning:</span> <span id="top-species">---</span></h2>
+                    <p><span id="lbl-confidence">Sannolikhet:</span> <strong id="top-confidence">0%</strong></p>
+                    
+                    <div class="chart-container">
+                        <canvas id="confidence-chart"></canvas>
+                    </div>
+                </section>
+            </main>
+        </div>
     </div>
 
     <script src="app.js"></script>

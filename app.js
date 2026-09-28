@@ -1,7 +1,7 @@
 let session = null;
 let classMapping = {};
 let birdDictionary = {};
-let currentLanguage = 'sv'; // 'sv' eller 'en'
+let currentLanguage = 'sv';
 let chartInstance = null;
 let lastTop5Results = null;
 let currentStatusKey = 'loadingModel';
@@ -14,6 +14,9 @@ const uiTranslations = {
         lblTopMatch: "Bästa matchning:",
         lblConfidence: "Sannolikhet:",
         chartLabel: "Sannolikhet (%)",
+        sidebarTitle: "🎧 Exempelljud",
+        sidebarDesc: "Ladda ner eller testa ett exempelljud direkt:",
+        btnTest: "Testa",
         loadingModel: "Laddar AI-modell...",
         loadingMapping: "Laddar artmappning...",
         loadingDict: "Laddar fågelordbok...",
@@ -29,6 +32,9 @@ const uiTranslations = {
         lblTopMatch: "Top Match:",
         lblConfidence: "Confidence:",
         chartLabel: "Confidence (%)",
+        sidebarTitle: "🎧 Sample Sounds",
+        sidebarDesc: "Download or test a sample sound directly:",
+        btnTest: "Test",
         loadingModel: "Loading AI model...",
         loadingMapping: "Loading species class mapping...",
         loadingDict: "Loading bird names dictionary...",
@@ -106,11 +112,47 @@ function updateStaticText() {
     if (lblTopMatchEl) lblTopMatchEl.innerText = t.lblTopMatch;
     if (lblConfidenceEl) lblConfidenceEl.innerText = t.lblConfidence;
     
+    const sidebarTitleEl = document.getElementById('sidebar-title');
+    const sidebarDescEl = document.getElementById('sidebar-desc');
+    if (sidebarTitleEl) sidebarTitleEl.innerText = t.sidebarTitle;
+    if (sidebarDescEl) sidebarDescEl.innerText = t.sidebarDesc;
+
+    document.querySelectorAll('.btn-test-text').forEach(el => el.innerText = t.btnTest);
+    document.querySelectorAll('.example-name').forEach(el => {
+        el.innerText = el.getAttribute(`data-${currentLanguage}`);
+    });
+
     if (statusEl && uiTranslations[currentLanguage][currentStatusKey]) {
         statusEl.innerText = uiTranslations[currentLanguage][currentStatusKey];
     }
 
     document.documentElement.lang = currentLanguage;
+}
+
+// Kör exempelljud från samples/-mappen direkt vid klick
+async function loadExampleAudio(filePath) {
+    try {
+        setStatus('extracting');
+        audioPlayer.src = filePath;
+        audioPlayer.style.display = 'block';
+
+        const response = await fetch(filePath);
+        const blob = await response.blob();
+        const arrayBuffer = await blob.arrayBuffer();
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 32000 });
+        const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+        const spectrogramTensor = extractMelSpectrogramTensor(audioBuffer);
+        
+        setStatus('runningInference');
+        await runInference(spectrogramTensor);
+        
+        setStatus('complete');
+    } catch (err) {
+        console.error("Fel vid laddning av exempelfil:", err);
+        if (statusEl) statusEl.innerText = `Fel: ${err.message}`;
+    }
 }
 
 async function init() {

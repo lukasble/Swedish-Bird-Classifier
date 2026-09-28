@@ -17,3 +17,6 @@ data/
 !*.onnx
 !*.json
 !bird_names_dictionary.csv
+
+# Allow sample audio files for web app testing
+!samples/*.mp3
