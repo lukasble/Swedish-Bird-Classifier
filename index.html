@@ -10,12 +10,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <!-- Logga absolut positionerad i det övre vänstra hörnet -->
+    <!-- Absolutely positioned logo in the top-left corner -->
     <a href="#" class="top-left-logo" title="NordicBird AI">
-        <img src="images/logo.png" alt="Logga">
+        <img src="images/logo.png" alt="Logo">
     </a>
 
-    <!-- Global språkknapp i hörnet med aktivt språk highlightat -->
+    <!-- Global language switcher in the corner with active language highlighted -->
     <div class="language-switcher">
         <span class="lang-label">Language:</span>
         <button id="lang-toggle-btn" class="global-lang-btn">
@@ -23,16 +23,16 @@
         </button>
     </div>
 
-    <!-- Huvudomslutning för hela sidan -->
+    <!-- Main site wrapper -->
     <div class="site-wrapper">
-        <!-- Sidans huvudtitel högst upp i vit text utan kort -->
+        <!-- Main header at the top -->
         <header class="site-top-header">
             <h1 class="site-main-title">NordicBird AI</h1>
             <p id="site-subtitle" class="site-url-hint">ljudbaserad artidentifiering</p>
         </header>
 
         <div class="layout-wrapper">
-            <!-- VÄNSTERSPALT: Exempelljud i ett eget, mindre kort -->
+            <!-- LEFT COLUMN: Sample audio files in a sidebar card -->
             <aside class="sidebar-card">
                 <h3 id="sidebar-title">Exempelljud</h3>
                 <p id="sidebar-desc">Ladda ner eller testa ett exempelljud direkt för att utvärdera modellen utan att behöva ladda upp egna filer.</p>
@@ -41,28 +41,28 @@
                     <li class="example-item">
                         <span class="example-name" data-sv="Skata" data-en="Eurasian Magpie">Skata</span>
                         <div class="example-actions">
-                            <button class="btn-test" onclick="loadExampleAudio('samples/skata-magpie.mp3')"><span class="btn-test-text">Testa</span></button>
-                            <a href="samples/skata-magpie.mp3" download class="btn-download" title="Ladda ner">↓</a>
+                            <button class="btn-test" onclick="loadExampleAudio('./samples/skata-magpie.mp3')"><span class="btn-test-text">Testa</span></button>
+                            <a href="./samples/skata-magpie.mp3" download class="btn-download" title="Ladda ner">↓</a>
                         </div>
                     </li>
                     <li class="example-item">
                         <span class="example-name" data-sv="Gråsparv" data-en="House Sparrow">Gråsparv</span>
                         <div class="example-actions">
-                            <button class="btn-test" onclick="loadExampleAudio('samples/gråsparv-housesparrow.mp3')"><span class="btn-test-text">Testa</span></button>
-                            <a href="samples/gråsparv-housesparrow.mp3" download class="btn-download" title="Ladda ner">↓</a>
+                            <button class="btn-test" onclick="loadExampleAudio('./samples/grasparv-housesparrow.mp3')"><span class="btn-test-text">Testa</span></button>
+                            <a href="./samples/grasparv-housesparrow.mp3" download class="btn-download" title="Ladda ner">↓</a>
                         </div>
                     </li>
                     <li class="example-item">
                         <span class="example-name" data-sv="Domherre" data-en="Eurasian Bullfinch">Domherre</span>
                         <div class="example-actions">
-                            <button class="btn-test" onclick="loadExampleAudio('samples/domherre-bullfinch.mp3')"><span class="btn-test-text">Testa</span></button>
-                            <a href="samples/domherre-bullfinch.mp3" download class="btn-download" title="Ladda ner">↓</a>
+                            <button class="btn-test" onclick="loadExampleAudio('./samples/domherre-bullfinch.mp3')"><span class="btn-test-text">Testa</span></button>
+                            <a href="./samples/domherre-bullfinch.mp3" download class="btn-download" title="Ladda ner">↓</a>
                         </div>
                     </li>
                 </ul>
             </aside>
 
-            <!-- HUVUDKORT I CENTRUM -->
+            <!-- MAIN COLUMN: Center card -->
             <main class="container">
                 <header>
                     <h1 id="app-title">Fågelartklassificerare</h1>
@@ -74,7 +74,6 @@
                         </p>
                     </div>
 
-                    <!-- Skiljelinje mellan texterna -->
                     <hr class="section-divider">
 
                     <p id="app-subtitle">Ladda upp en ljudfil (.wav eller .mp3) för att identifiera fågelarten direkt i din webbläsare.</p>
@@ -103,7 +102,7 @@
         </div>
     </div>
 
-    <!-- Info-knapp i nedre högra hörnet -->
+    <!-- Info widget in the bottom-right corner -->
     <div class="info-widget">
         <div id="info-popup" class="info-popup">
             <h4 id="info-title">Om projektet</h4>

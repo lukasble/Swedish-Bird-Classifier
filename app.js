@@ -1,7 +1,7 @@
 /**
  * Global Application State Variables
  */
-let session = null;                  // Holds the ONNX Runtime Web inference session
+let session = null;                // Holds the ONNX Runtime Web inference session
 let classMapping = {};             // Maps output model indices to internal species codes
 let birdDictionary = {};           // Maps species codes to scientific, English, and Swedish names
 let currentLanguage = 'sv';        // Active UI language ('sv' or 'en')
@@ -221,9 +221,12 @@ function updateStaticText() {
  * @param {string} filePath - Relative path to the sample audio file.
  */
 async function loadExampleAudio(filePath) {
-    // Security check: validate relative path to prevent arbitrary local path traversal
-    if (!filePath.startsWith('./audio/') && !filePath.startsWith('samples/')) {
-        console.error("Invalid file path supplied.");
+    // Security check: validate relative path to prevent arbitrary local path traversal across subdirectories
+    const validPrefixes = ['./audio/', 'audio/', './samples/', 'samples/'];
+    const isValidPath = validPrefixes.some(prefix => filePath.startsWith(prefix));
+
+    if (!isValidPath) {
+        console.error("Invalid file path supplied:", filePath);
         return;
     }
 
