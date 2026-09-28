@@ -45,7 +45,7 @@ The project uses a clean, flat architecture to keep client-side execution fast a
 * app.js  
   Handles all core application logic, digital signal processing (DSP), and AI inference execution:
   - Model Initialization: Loads model.onnx into the browser via ONNX Runtime Web.
-  - Audio Analysis: Parses uploaded or sample files via Web Audio API (AudioContext) to isolate the most audio-intensive segments.
+  - Audio Analysis: Parses uploaded or sample files via the Web Audio API (AudioContext) to isolate the most audio-intensive seconds. This dynamic segment selection improves real-world classification accuracy compared to the fixed 5-second middle window used during model training on noisier dataset audio.
   - Feature Extraction: Transforms isolated audio frames into mel-spectrogram representations using Meyda.
   - Inference & Softmax: Passes spectrogram tensors into the ONNX session, computes prediction probabilities using a Softmax function, and updates the UI and chart elements.
   - Localization: Dynamically swaps all text labels between Swedish and English in real time without page reloads.
