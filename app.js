@@ -528,13 +528,13 @@ function getBirdImageSrc(classCode, formattedName) {
         return 'images/skata.jpg';
     }
     if (searchString.includes('gråsparv') || searchString.includes('graspa') || searchString.includes('sparrow')) {
-        return 'images/gråsparv.jpg';
+        return 'images/grasparv.jpg';
     }
     if (searchString.includes('domher') || searchString.includes('bullfinch')) {
         return 'images/domherre.jpg';
     }
 
-    return 'images/fågel.png';
+    return 'images/fagel.png';
 }
 
 /**
