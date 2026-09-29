@@ -58,14 +58,19 @@ body {
         position: relative;
         top: 0;
         left: 0;
-        margin: 0 auto 10px auto; /* Centers the logo and adds space below */
-        width: 250px;  /* Increased from 100px */
-        height: 250px; /* Increased from 100px */
+        display: block;          /* Ensures margin: auto calculates full width */
+        margin-left: auto;       /* Explicit auto margin */
+        margin-right: auto;      /* Explicit auto margin */
+        margin-top: 0;
+        margin-bottom: 10px;
+        width: 300px;            /* Your preferred mobile size */
+        height: 300px;
     }
 
-    /* Adjust page top margin on mobile if needed */
-    .site-top-header {
-        margin-top: 10px;
+    /* Optional reset to ensure the outer container spans full width */
+    .site-wrapper {
+        width: 100%;
+        box-sizing: border-box;
     }
 }
 
